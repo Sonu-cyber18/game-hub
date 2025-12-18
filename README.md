@@ -50,4 +50,4 @@ CSS – Styling and layout
 
 JavaScript – Game logic and authentication handling
 
-Django - Game backend handling/integration
+Django - Game backend handling/integrations 
