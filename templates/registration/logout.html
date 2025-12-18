@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logged Out - GameHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        .logout-container {
+            background: rgba(30, 30, 46, 0.9);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid #4cc9f0;
+        }
+
+        h2 {
+            color: #4cc9f0;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        p {
+            color: #a5a5a5;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-link {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(to right, #4cc9f0, #4895ef);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .login-link:hover {
+            background: linear-gradient(to right, #4895ef, #4361ee);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.4);
+        }
+
+        @media (max-width: 576px) {
+            .logout-container {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+
+            .login-link {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <h2>You have been logged out</h2>
+        <p>Thank you for using GameHub.</p>
+        <a href="{% url 'login' %}" class="login-link">Log in again</a>
+    </div>
+</body>
+</html>
