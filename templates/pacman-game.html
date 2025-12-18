@@ -1,0 +1,603 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pac-Man Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: #4cc9f0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a, .nav-links select {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #4cc9f0;
+        }
+
+        .nav-links select {
+            background: linear-gradient(to right, #4cc9f0, #4895ef);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 30px;
+        }
+
+        .pacman-container {
+            text-align: center;
+            max-width: 90vw;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        #game-board {
+            display: grid;
+            width: 90vw;
+            max-width: 560px; /* 28 tiles * 20px */
+            aspect-ratio: 1 / 0.8; /* Adjust based on maze dimensions */
+            margin: 0 auto;
+            border: 3px solid #4cc9f0;
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(76, 201, 240, 0.4);
+            background: #1e1e2e;
+        }
+
+        .tile {
+            width: 20px;
+            height: 20px;
+            box-sizing: border-box;
+        }
+
+        .wall {
+            background: #2d2d3d;
+            border: 1px solid #4cc9f0;
+        }
+
+        .pellet {
+            background: #1e1e2e;
+            background-image: radial-gradient(circle, #ffffff 2px, transparent 3px);
+            background-position: center;
+        }
+
+        .power-pellet {
+            background: #1e1e2e;
+            background-image: radial-gradient(circle, #f72585 4px, transparent 5px);
+            background-position: center;
+        }
+
+        .empty {
+            background: #1e1e2e;
+        }
+
+        .pacman {
+            background: yellow;
+            border-radius: 50%;
+            position: relative;
+            animation: chomp 0.3s infinite;
+        }
+
+        @keyframes chomp {
+            0%, 100% { clip-path: circle(50%); }
+            50% { clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+        }
+
+        .ghost {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .ghost.red { background: red; }
+        .ghost.pink { background: pink; }
+        .ghost.cyan { background: cyan; }
+        .ghost.orange { background: orange; }
+        .ghost.scared {
+            background: blue;
+            animation: flash 0.5s infinite;
+        }
+
+        @keyframes flash {
+            50% { opacity: 0.5; }
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .game-controls button {
+            background: linear-gradient(to right, #4cc9f0, #4895ef);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .game-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.4);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            background: rgba(30, 30, 46, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            color: #f72585;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #1e1e2e;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #4cc9f0;
+        }
+
+        .close-modal {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        #high-scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        #high-scores-table th, #high-scores-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #2d2d3d;
+        }
+
+        #high-scores-table th {
+            color: #4cc9f0;
+        }
+
+        @media (max-width: 576px) {
+            .tile, .pacman, .ghost {
+                width: 15px;
+                height: 15px;
+            }
+
+            .pellet {
+                background-image: radial-gradient(circle, #ffffff 1px, transparent 2px);
+            }
+
+            .power-pellet {
+                background-image: radial-gradient(circle, #f72585 3px, transparent 4px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{% url 'home' %}" class="logo">GameHub</a>
+            <div class="nav-links">
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'logout' %}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pacman-container">
+        <h1>Pac-Man</h1>
+        <div id="game-board"></div>
+
+        <div class="game-stats">
+            <div class="stat-box">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Lives</div>
+                <div class="stat-value" id="lives">3</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="current-level">Easy</div>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <button id="start-game">Start Game</button>
+        </div>
+    </div>
+
+    <div class="modal" id="scores-modal">
+        <div class="modal-content">
+            <span class="close-modal">×</span>
+            <h2>Pac-Man High Scores</h2>
+            <table id="high-scores-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Level</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="scores-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        const gameState = {
+            map: [
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
+                [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+                [1,2,1,0,0,1,2,1,0,0,0,1,2,1,1,2,1,0,0,0,1,2,1,0,0,1,2,1],
+                [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+                [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+                [1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1],
+                [1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1],
+                [1,2,2,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,2,2,1],
+                [1,1,1,1,1,1,2,1,1,1,1,1,0,1,1,0,1,1,1,1,1,2,1,1,1,1,1,1],
+                [0,0,0,0,0,1,2,1,1,1,1,1,0,1,1,0,1,1,1,1,1,2,1,0,0,0,0,0],
+                [0,0,0,0,0,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0],
+                [1,1,1,1,1,1,2,1,1,0,1,1,1,0,0,1,1,1,0,1,1,2,1,1,1,1,1,1],
+                [1,0,0,0,0,0,2,0,0,0,1,0,0,0,0,0,0,1,0,0,0,2,0,0,0,0,0,1],
+                [1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,1,1,1,1,1],
+                [0,0,0,0,0,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0],
+                [0,0,0,0,0,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,0,0,0,0,0],
+                [1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,1,1,1,1,1],
+                [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
+                [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+                [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+                [1,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,1],
+                [1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1],
+                [1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1],
+                [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            ],
+            score: 0,
+            lives: 3,
+            gameRunning: false,
+            pacman: { x: 14, y: 23, direction: 'right' },
+            ghosts: [
+                { x: 14, y: 11, color: 'red', direction: 'up', scared: false },
+                { x: 15, y: 11, color: 'pink', direction: 'up', scared: false },
+                { x: 13, y: 11, color: 'cyan', direction: 'up', scared: false },
+                { x: 12, y: 11, color: 'orange', direction: 'up', scared: false }
+            ],
+            difficulty: 'easy',
+            powerPelletTimer: null,
+            gameLoop: null,
+            scores: JSON.parse(localStorage.getItem('pacmanHighScores')) || [],
+            pelletCount: 0
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGame();
+            setupEventListeners();
+            updateStatsDisplay();
+        });
+
+        function initializeGame() {
+            gameState.difficulty = $('#difficulty').val();
+            gameState.score = 0;
+            gameState.lives = 3;
+            gameState.gameRunning = false;
+            gameState.pacman = { x: 14, y: 23, direction: 'right' };
+            gameState.ghosts = [
+                { x: 14, y: 11, color: 'red', direction: 'up', scared: false },
+                { x: 15, y: 11, color: 'pink', direction: 'up', scared: false },
+                { x: 13, y: 11, color: 'cyan', direction: 'up', scared: false },
+                { x: 12, y: 11, color: 'orange', direction: 'up', scared: false }
+            ];
+            gameState.pelletCount = 0;
+            resetMap();
+            renderBoard();
+            updateStatsDisplay();
+        }
+
+        function resetMap() {
+            gameState.map = gameState.map.map(row => row.slice());
+            gameState.pelletCount = 0;
+            for (let y = 0; y < gameState.map.length; y++) {
+                for (let x = 0; x < gameState.map[0].length; x++) {
+                    if (gameState.map[y][x] === 2) gameState.pelletCount++;
+                    else if (gameState.map[y][x] === 3) gameState.pelletCount++;
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            $('#start-game').click(startGame);
+            $('#difficulty').change(function () {
+                gameState.difficulty = $(this).val();
+                $('#current-level').text($(this).find('option:selected').text());
+                initializeGame();
+            });
+            $('#view-scores').click(showHighScores);
+            $('.close-modal').click(hideHighScores);
+            $(document).keydown(handleKeyPress);
+        }
+
+        function startGame() {
+            if (gameState.gameRunning) return;
+            gameState.gameRunning = true;
+            gameState.gameLoop = setInterval(updateGame, 100);
+        }
+
+        function stopGame() {
+            gameState.gameRunning = false;
+            clearInterval(gameState.gameLoop);
+            if (gameState.powerPelletTimer) clearTimeout(gameState.powerPelletTimer);
+        }
+
+        function renderBoard() {
+            const board = $('#game-board');
+            board.empty();
+            board.css('grid-template-columns', `repeat(${gameState.map[0].length}, 20px)`);
+            for (let y = 0; y < gameState.map.length; y++) {
+                for (let x = 0; x < gameState.map[0].length; x++) {
+                    const tile = $('<div>').addClass('tile');
+                    if (gameState.map[y][x] === 1) tile.addClass('wall');
+                    else if (gameState.map[y][x] === 2) tile.addClass('pellet');
+                    else if (gameState.map[y][x] === 3) tile.addClass('power-pellet');
+                    else tile.addClass('empty');
+                    board.append(tile);
+                }
+            }
+            const pacmanTile = $(`#game-board .tile:eq(${gameState.pacman.y * gameState.map[0].length + gameState.pacman.x})`);
+            pacmanTile.addClass('pacman');
+            gameState.ghosts.forEach(ghost => {
+                const ghostTile = $(`#game-board .tile:eq(${ghost.y * gameState.map[0].length + ghost.x})`);
+                ghostTile.addClass(`ghost ${ghost.color} ${ghost.scared ? 'scared' : ''}`);
+            });
+        }
+
+        function handleKeyPress(e) {
+            if (!gameState.gameRunning) return;
+            const directions = {
+                ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right'
+            };
+            if (directions[e.key]) {
+                gameState.pacman.direction = directions[e.key];
+            }
+        }
+
+        function updateGame() {
+            movePacman();
+            moveGhosts();
+            checkCollisions();
+            renderBoard();
+            updateStatsDisplay();
+            if (gameState.pelletCount === 0) {
+                stopGame();
+                alert(`You won! Score: ${gameState.score}`);
+                addHighScore(gameState.score);
+                updateStorage();
+            }
+            if (gameState.lives <= 0) {
+                stopGame();
+                alert(`Game Over! Score: ${gameState.score}`);
+                addHighScore(gameState.score);
+                updateStorage();
+            }
+        }
+
+        function movePacman() {
+            let newX = gameState.pacman.x;
+            let newY = gameState.pacman.y;
+            if (gameState.pacman.direction === 'up') newY--;
+            else if (gameState.pacman.direction === 'down') newY++;
+            else if (gameState.pacman.direction === 'left') newX--;
+            else if (gameState.pacman.direction === 'right') newX++;
+
+            if (newX < 0) newX = gameState.map[0].length - 1;
+            else if (newX >= gameState.map[0].length) newX = 0;
+            if (newY < 0 || newY >= gameState.map.length || gameState.map[newY][newX] === 1) return;
+
+            gameState.pacman.x = newX;
+            gameState.pacman.y = newY;
+
+            if (gameState.map[newY][newX] === 2) {
+                gameState.score += 10;
+                gameState.map[newY][newX] = 0;
+                gameState.pelletCount--;
+            } else if (gameState.map[newY][newX] === 3) {
+                gameState.score += 50;
+                gameState.map[newY][newX] = 0;
+                gameState.pelletCount--;
+                activatePowerPellet();
+            }
+        }
+
+        function activatePowerPellet() {
+            const duration = gameState.difficulty === 'easy' ? 10000 : gameState.difficulty === 'medium' ? 7000 : 5000;
+            gameState.ghosts.forEach(ghost => ghost.scared = true);
+            if (gameState.powerPelletTimer) clearTimeout(gameState.powerPelletTimer);
+            gameState.powerPelletTimer = setTimeout(() => {
+                gameState.ghosts.forEach(ghost => ghost.scared = false);
+            }, duration);
+        }
+
+        function moveGhosts() {
+            const speed = gameState.difficulty === 'easy' ? 0.1 : gameState.difficulty === 'medium' ? 0.2 : 0.3;
+            gameState.ghosts.forEach(ghost => {
+                if (Math.random() < speed) {
+                    const directions = ['up', 'down', 'left', 'right'];
+                    const validDirections = directions.filter(dir => {
+                        let newX = ghost.x, newY = ghost.y;
+                        if (dir === 'up') newY--;
+                        else if (dir === 'down') newY++;
+                        else if (dir === 'left') newX--;
+                        else if (dir === 'right') newX++;
+                        return newY >= 0 && newY < gameState.map.length && newX >= 0 && newX < gameState.map[0].length && gameState.map[newY][newX] !== 1;
+                    });
+                    if (validDirections.length > 0) {
+                        ghost.direction = validDirections[Math.floor(Math.random() * validDirections.length)];
+                    }
+                    let newX = ghost.x, newY = ghost.y;
+                    if (ghost.direction === 'up') newY--;
+                    else if (ghost.direction === 'down') newY++;
+                    else if (ghost.direction === 'left') newX--;
+                    else if (ghost.direction === 'right') newX++;
+                    if (newY >= 0 && newY < gameState.map.length && newX >= 0 && newX < gameState.map[0].length && gameState.map[newY][newX] !== 1) {
+                        ghost.x = newX;
+                        ghost.y = newY;
+                    }
+                }
+            });
+        }
+
+        function checkCollisions() {
+            gameState.ghosts.forEach(ghost => {
+                if (ghost.x === gameState.pacman.x && ghost.y === gameState.pacman.y) {
+                    if (ghost.scared) {
+                        gameState.score += 200;
+                        ghost.x = 14;
+                        ghost.y = 11;
+                        ghost.scared = false;
+                    } else {
+                        gameState.lives--;
+                        gameState.pacman.x = 14;
+                        gameState.pacman.y = 23;
+                        gameState.ghosts.forEach(g => {
+                            g.x = 14;
+                            g.y = 11;
+                            g.scared = false;
+                        });
+                        if (gameState.powerPelletTimer) clearTimeout(gameState.powerPelletTimer);
+                    }
+                }
+            });
+        }
+
+        function addHighScore(score) {
+            const newScore = {
+                player: '{{ request.user.username|default:"Guest" }}',
+                score: score,
+                level: gameState.difficulty,
+                date: new Date().toLocaleDateString()
+            };
+            gameState.scores.push(newScore);
+            gameState.scores.sort((a, b) => b.score - a.score);
+            gameState.scores = gameState.scores.slice(0, 10);
+        }
+
+        function updateStorage() {
+            localStorage.setItem('pacmanHighScores', JSON.stringify(gameState.scores));
+        }
+
+        function updateStatsDisplay() {
+            $('#score').text(gameState.score);
+            $('#lives').text(gameState.lives);
+            $('#current-level').text($('#difficulty option:selected').text());
+        }
+
+        function showHighScores() {
+            const body = $('#scores-body');
+            body.empty();
+            gameState.scores.forEach((s, i) => {
+                body.append(`
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${s.player}</td>
+                        <td>${s.score}</td>
+                        <td>${s.level.charAt(0).toUpperCase() + s.level.slice(1)}</td>
+                        <td>${s.date}</td>
+                    </tr>
+                `);
+            });
+            $('#scores-modal').css('display', 'flex');
+        }
+
+        function hideHighScores() {
+            $('#scores-modal').css('display', 'none');
+        }
+    </script>
+</body>
+</html>

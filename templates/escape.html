@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Manor | Progressive Horror</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 100%);
+            font-family: 'Courier New', monospace;
+            color: #e6e6e6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            color: #8a2be2;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            color: #ff4444;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            border: 3px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #0a0a0a;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+            margin-bottom: 15px;
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .stats {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #8a2be2;
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #8a2be2;
+        }
+        
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .difficulty-meter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid #8a2be2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .difficulty-label {
+            font-size: 0.7rem;
+            color: #8a2be2;
+        }
+        
+        .difficulty-bar {
+            width: 120px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .difficulty-fill {
+            height: 100%;
+            width: 20%;
+            background: linear-gradient(90deg, #00cc66, #ffcc00, #ff4444);
+            transition: width 0.5s;
+        }
+        
+        .difficulty-level {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .inventory {
+            position: absolute;
+            top: 60px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid #8a2be2;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .inventory-item {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #444;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 30, 30, 0.9);
+            position: relative;
+            font-size: 0.8rem;
+        }
+        
+        .inventory-item.found {
+            border-color: #8a2be2;
+            box-shadow: 0 0 8px rgba(138, 43, 226, 0.5);
+        }
+        
+        .item-label {
+            position: absolute;
+            bottom: -18px;
+            font-size: 0.6rem;
+            color: #aaa;
+            white-space: nowrap;
+        }
+        
+        .room-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 6px 15px;
+            border-radius: 8px;
+            border: 2px solid #ff4444;
+            font-size: 0.9rem;
+            color: #ff4444;
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            max-width: 600px;
+        }
+        
+        .control-group {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid #333;
+            min-width: 150px;
+        }
+        
+        .control-group h3 {
+            color: #8a2be2;
+            margin-bottom: 6px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .control-group p {
+            font-size: 0.8rem;
+            line-height: 1.3;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .key {
+            display: inline-block;
+            background: #333;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        
+        .game-info {
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 2px solid #333;
+            font-size: 0.8rem;
+        }
+        
+        .difficulty-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .difficulty-stage {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stage-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stage-easy {
+            color: #00cc66;
+            border: 1px solid #00cc66;
+        }
+        
+        .stage-medium {
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+        }
+        
+        .stage-hard {
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+        
+        .hazard-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .hazard-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        
+        .warning {
+            color: #ff4444;
+            font-weight: bold;
+        }
+        
+        .troll-note {
+            color: #ffcc00;
+            font-style: italic;
+            margin-top: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-size: 3rem;
+            color: #8a2be2;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+        
+        .start-screen p {
+            font-size: 1rem;
+            max-width: 500px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .start-button {
+            font-size: 1.2rem;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #8a2be2 0%, #ff4444 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .start-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, #ff4444 0%, #8a2be2 100%);
+        }
+        
+        .death-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .death-screen h2 {
+            font-size: 2.5rem;
+            color: #ff4444;
+            margin-bottom: 15px;
+            text-shadow: 0 0 12px rgba(255, 68, 68, 0.7);
+        }
+        
+        .death-screen p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            max-width: 400px;
+        }
+        
+        button {
+            background: #8a2be2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s;
+            margin: 4px;
+        }
+        
+        button:hover {
+            background: #ff4444;
+            transform: scale(1.05);
+        }
+        
+        .message-notification {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 8px 15px;
+            border-radius: 6px;
+            display: none;
+            border: 2px solid #8a2be2;
+            box-shadow: 0 0 12px rgba(138, 43, 226, 0.5);
+            z-index: 20;
+            max-width: 80%;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .jumpscare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            z-index: 40;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .jumpscare-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .escape-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .escape-screen h2 {
+            font-size: 2.5rem;
+            color: #8a2be2;
+            margin-bottom: 15px;
+            text-shadow: 0 0 12px rgba(138, 43, 226, 0.7);
+        }
+        
+        .level-up-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 45;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .level-up-screen h2 {
+            font-size: 2.5rem;
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+        }
+        
+        .flicker {
+            animation: flicker 0.3s infinite;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .pulse {
+            animation: pulse 1s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        
+        .ghost-appear {
+            animation: ghostAppear 0.5s;
+        }
+        
+        @keyframes ghostAppear {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .player-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            display: none;
+        }
+        
+        .highlight-circle {
+            position: absolute;
+            border: 3px solid #00ff00;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #00ff00;
+            animation: highlightPulse 1.5s infinite;
+        }
+        
+        @keyframes highlightPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        @media (max-width: 650px) {
+            .game-container, .header, .controls, .game-info {
+                width: 95%;
+            }
+            
+            .game-container {
+                height: 350px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-title {
+                font-size: 2.2rem;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .control-group {
+                min-width: 130px;
+                padding: 8px 12px;
+            }
+            
+            .difficulty-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .inventory {
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            
+            .inventory-item {
+                width: 25px;
+                height: 25px;
+                font-size: 0.7rem;
+            }
+            
+            .item-label {
+                font-size: 0.5rem;
+                bottom: -16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .game-container {
+                height: 300px;
+            }
+            
+            .game-title {
+                font-size: 1.8rem;
+            }
+            
+            .start-screen p {
+                font-size: 0.9rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PHANTOM MANOR</h1>
+        <p class="subtitle">Progressive Horror - The deeper you go, the scarier it gets!</p>
+    </div>
+    
+    <div class="game-container">
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+        
+        <div class="ui-overlay">
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-label">SCARES</span>
+                    <span class="stat-value" id="scareCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">ITEMS</span>
+                    <span class="stat-value" id="itemCount">0/5</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">TIME</span>
+                    <span class="stat-value" id="timeCount">00:00</span>
+                </div>
+            </div>
+            
+            <div class="difficulty-meter">
+                <div class="difficulty-label">HORROR LEVEL</div>
+                <div class="difficulty-bar">
+                    <div class="difficulty-fill" id="difficultyFill"></div>
+                </div>
+                <div class="difficulty-level" id="difficultyLevel">NORMAL</div>
+            </div>
+            
+            <div class="inventory">
+                <div class="inventory-item" id="inventoryKey1">
+                    <span>🔑</span>
+                    <span class="item-label">Key 1</span>
+                </div>
+                <div class="inventory-item" id="inventoryKey2">
+                    <span>🔑</span>
+                    <span class="item-label">Key 2</span>
+                </div>
+                <div class="inventory-item" id="inventoryCandle">
+                    <span>🕯️</span>
+                    <span class="item-label">Candle</span>
+                </div>
+                <div class="inventory-item" id="inventoryAmulet">
+                    <span>🧿</span>
+                    <span class="item-label">Amulet</span>
+                </div>
+                <div class="inventory-item" id="inventoryNote">
+                    <span>📜</span>
+                    <span class="item-label">Note</span>
+                </div>
+            </div>
+            
+            <div class="room-indicator" id="roomIndicator">ENTRY HALL</div>
+            
+            <div class="message-notification" id="messageNotification">
+                You found something!
+            </div>
+            
+            <div class="player-highlight" id="playerHighlight">
+                <div class="highlight-circle"></div>
+            </div>
+        </div>
+        
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <div class="game-title">PHANTOM MANOR</div>
+            <h2>PROGRESSIVE HORROR</h2>
+            <p>The game starts easy... but gets harder with each room you explore. 
+               As your horror level increases, traps become deadlier, ghosts appear more often, 
+               and the house becomes actively hostile!</p>
+            <p class="warning">Warning: The game adapts to your progress. The more you play, the scarier it gets!</p>
+            <button class="start-button" id="startButton">BEGIN YOUR NIGHTMARE</button>
+            <p style="margin-top: 15px; font-size: 0.9rem; color: #00ff00;">
+                Difficulty increases automatically as you collect items!
+            </p>
+        </div>
+        
+        <!-- Death Screen -->
+        <div class="death-screen" id="deathScreen">
+            <h2>YOU DIED!</h2>
+            <p id="deathMessage">The house claimed another victim...</p>
+            <p>Horror Level: <span id="deathDifficulty">NORMAL</span></p>
+            <div class="button-container">
+                <button id="respawnButton">Respawn in Room</button>
+                <button id="restartButton">Restart Game</button>
+            </div>
+        </div>
+        
+        <!-- Level Up Screen -->
+        <div class="level-up-screen" id="levelUpScreen">
+            <h2>HORROR LEVEL INCREASED!</h2>
+            <p id="levelUpMessage">The house grows more dangerous...</p>
+            <button id="continueButton">Continue</button>
+        </div>
+        
+        <!-- Jumpscare Screen -->
+        <div class="jumpscare" id="jumpscareScreen">
+            <div style="width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="font-size: 5rem; color: #8a2be2; text-shadow: 0 0 30px #8a2be2; margin-bottom: 20px;">👻</div>
+                <div style="font-size: 3rem; color: #ff4444; text-shadow: 0 0 20px #ff4444; font-weight: bold;">BOO!</div>
+                <div style="font-size: 1.5rem; color: #fff; margin-top: 20px;">JUMP SCARE!</div>
+            </div>
+        </div>
+        
+        <!-- Escape Screen -->
+        <div class="escape-screen" id="escapeScreen">
+            <h2>ESCAPE SUCCESSFUL!</h2>
+            <p id="escapeMessage">You've escaped the Phantom Manor with all items!</p>
+            <p>Final Horror Level: <span id="escapeDifficulty">NORMAL</span></p>
+            <div class="button-container">
+                <button id="playAgainButton">Play Again</button>
+                <button id="menuButton">Main Menu</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <h3>MOVEMENT</h3>
+            <p><span class="key">A</span> / <span class="key">←</span> Move Left</p>
+            <p><span class="key">D</span> / <span class="key">→</span> Move Right</p>
+            <p><span class="key">W</span> / <span class="key">↑</span> / <span class="key">SPACE</span> Jump</p>
+            <p><span class="key">E</span> Interact</p>
+        </div>
+        
+        <div class="control-group">
+            <h3>DIFFICULTY</h3>
+            <p>• Starts Easy</p>
+            <p>• Progressively Harder</p>
+            <p>• More traps appear</p>
+            <p>• Ghosts become faster</p>
+        </div>
+        
+        <div class="control-group">
+            <h3>OBJECTIVE</h3>
+            <p>• Collect 5 items</p>
+            <p>• Survive increasing horror</p>
+            <p>• Escape the manor</p>
+            <p>• Don't get scared to death!</p>
+        </div>
+    </div>
+    
+    <div class="game-info">
+        <h3>PROGRESSIVE HORROR SYSTEM</h3>
+        <div class="difficulty-info">
+            <div class="difficulty-stage stage-easy">
+                <div class="stage-label">STAGE 1: NORMAL</div>
+                <p>• Few traps</p>
+                <p>• Slow ghosts</p>
+                <p>• Bright rooms</p>
+                <p>• Predictable patterns</p>
+            </div>
+            <div class="difficulty-stage stage-medium">
+                <div class="stage-label">STAGE 2: HAUNTED</div>
+                <p>• More traps</p>
+                <p>• Faster ghosts</p>
+                <p>• Flickering lights</p>
+                <p>• Unpredictable events</p>
+            </div>
+            <div class="difficulty-stage stage-hard">
+                <div class="stage-label">STAGE 3: NIGHTMARE</div>
+                <p>• Constant traps</p>
+                <p>• Aggressive ghosts</p>
+                <p>• Near darkness</p>
+                <p>• Random jump scares</p>
+            </div>
+        </div>
+        <p class="troll-note">Each item you collect increases the horror level. Can you survive to the end?</p>
+    </div>
+
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+        // Game variables
+        const canvas = document.getElementById('gameCanvas');
+        if (!canvas) {
+            console.error('Canvas element not found!');
+            return;
+        }
+        const ctx = canvas.getContext('2d');
+        
+        // UI Elements
+        const startScreen = document.getElementById('startScreen');
+        const startButton = document.getElementById('startButton');
+        const deathScreen = document.getElementById('deathScreen');
+        const deathMessage = document.getElementById('deathMessage');
+        const deathDifficulty = document.getElementById('deathDifficulty');
+        const respawnButton = document.getElementById('respawnButton');
+        const restartButton = document.getElementById('restartButton');
+        const scareCount = document.getElementById('scareCount');
+        const itemCount = document.getElementById('itemCount');
+        const timeCount = document.getElementById('timeCount');
+        const roomIndicator = document.getElementById('roomIndicator');
+        const messageNotification = document.getElementById('messageNotification');
+        const jumpscareScreen = document.getElementById('jumpscareScreen');
+        const escapeScreen = document.getElementById('escapeScreen');
+        const escapeMessage = document.getElementById('escapeMessage');
+        const escapeDifficulty = document.getElementById('escapeDifficulty');
+        const playAgainButton = document.getElementById('playAgainButton');
+        const menuButton = document.getElementById('menuButton');
+        const playerHighlight = document.getElementById('playerHighlight');
+        const levelUpScreen = document.getElementById('levelUpScreen');
+        const levelUpMessage = document.getElementById('levelUpMessage');
+        const continueButton = document.getElementById('continueButton');
+        const difficultyFill = document.getElementById('difficultyFill');
+        const difficultyLevel = document.getElementById('difficultyLevel');
+        
+        // Inventory items
+        const inventoryItems = {
+            key1: document.getElementById('inventoryKey1'),
+            key2: document.getElementById('inventoryKey2'),
+            candle: document.getElementById('inventoryCandle'),
+            amulet: document.getElementById('inventoryAmulet'),
+            note: document.getElementById('inventoryNote')
+        };
+        
+        // Difficulty levels
+        const DIFFICULTY_LEVELS = {
+            NORMAL: {
+                name: "NORMAL",
+                fillPercent: "20%",
+                color: "#00cc66",
+                ghostChance: 0.1,
+                ghostSpeed: 1,
+                trapChance: 0.3,
+                jumpScareChance: 0.1,
+                flickerChance: 0.2,
+                fakeItemChance: 0.3,
+                darkness: 0.1
+            },
+            HAUNTED: {
+                name: "HAUNTED",
+                fillPercent: "50%",
+                color: "#ffcc00",
+                ghostChance: 0.25,
+                ghostSpeed: 1.5,
+                trapChance: 0.5,
+                jumpScareChance: 0.25,
+                flickerChance: 0.4,
+                fakeItemChance: 0.5,
+                darkness: 0.3
+            },
+            NIGHTMARE: {
+                name: "NIGHTMARE",
+                fillPercent: "80%",
+                color: "#ff4444",
+                ghostChance: 0.4,
+                ghostSpeed: 2,
+                trapChance: 0.7,
+                jumpScareChance: 0.4,
+                flickerChance: 0.6,
+                fakeItemChance: 0.7,
+                darkness: 0.5
+            },
+            HELL: {
+                name: "HELL",
+                fillPercent: "100%",
+                color: "#8a2be2",
+                ghostChance: 0.6,
+                ghostSpeed: 2.5,
+                trapChance: 0.9,
+                jumpScareChance: 0.6,
+                flickerChance: 0.8,
+                fakeItemChance: 0.9,
+                darkness: 0.7
+            }
+        };
+        
+        // Game state
+        let gameState = {
+            player: {
+                x: 100,
+                y: 300,
+                width: 25,
+                height: 40,
+                velocityX: 0,
+                velocityY: 0,
+                speed: 4,
+                jumpForce: 10,
+                isOnGround: false,
+                color: '#8a2be2',
+                glow: true,
+                glowTimer: 0
+            },
+            currentRoom: 0,
+            rooms: [],
+            items: [],
+            hazards: [],
+            traps: [],
+            doors: [],
+            lights: [],
+            ghosts: [],
+            collectedItems: [],
+            scares: 0,
+            itemsFound: 0,
+            totalItems: 5,
+            gameTime: 0,
+            gameStarted: false,
+            gameOver: false,
+            gameWon: false,
+            flickerTimer: 0,
+            flickerActive: false,
+            jumpScareActive: false,
+            keys: {},
+            cameraX: 0,
+            cameraY: 0,
+            lastRoomChange: 0,
+            difficulty: DIFFICULTY_LEVELS.NORMAL,
+            showLevelUp: false,
+            levelUpTimer: 0,
+            horrorProgression: 0 // 0-100, increases with items collected and time
+        };
+        
+        // Room configurations
+        const roomConfigs = [
+            { // Room 0: Entry Hall
+                name: "ENTRY HALL",
+                color: "#111111",
+                items: ["key1"],
+                fakeItems: ["fakeKey"]
+            },
+            { // Room 1: Living Room
+                name: "LIVING ROOM",
+                color: "#1a0a1a",
+                items: ["candle"],
+                fakeItems: ["fakeCandle"]
+            },
+            { // Room 2: Library
+                name: "LIBRARY",
+                color: "#0a1a1a",
+                items: ["note"],
+                fakeItems: ["fakeNote"]
+            },
+            { // Room 3: Dining Room
+                name: "DINING ROOM",
+                color: "#1a1a0a",
+                items: ["key2"],
+                fakeItems: ["fakeKey"]
+            },
+            { // Room 4: Master Bedroom
+                name: "MASTER BEDROOM",
+                color: "#1a0a0a",
+                items: ["amulet"],
+                fakeItems: ["fakeAmulet"]
+            },
+            { // Room 5: Attic (Final)
+                name: "ATTIC",
+                color: "#0a0a0a",
+                items: [],
+                fakeItems: []
+            }
+        ];
+        
+        // Death messages by difficulty
+        const deathMessages = {
+            NORMAL: [
+                "The house claimed another victim...",
+                "You fell into the darkness...",
+                "A trap sealed your fate..."
+            ],
+            HAUNTED: [
+                "The ghosts dragged you into the shadows...",
+                "The house consumed your soul...",
+                "You became another spirit in the manor..."
+            ],
+            NIGHTMARE: [
+                "The nightmare consumed you...",
+                "Eternal torment awaits...",
+                "The house feasts on your fear..."
+            ],
+            HELL: [
+                "YOU ARE NOW PART OF THE HOUSE FOREVER",
+                "THE HORROR NEVER ENDS",
+                "WELCOME TO ETERNAL DAMNATION"
+            ]
+        };
+        
+        // Level up messages
+        const levelUpMessages = [
+            "The air grows colder...",
+            "Whispers echo through the halls...",
+            "Shadows grow longer...",
+            "The house awakens...",
+            "Ghosts become more aggressive...",
+            "Traps multiply...",
+            "Darkness consumes the light...",
+            "The nightmare intensifies..."
+        ];
+        
+        // Initialize the game
+        function initGame() {
+            gameState.rooms = [];
+            gameState.items = [];
+            gameState.hazards = [];
+            gameState.traps = [];
+            gameState.doors = [];
+            gameState.lights = [];
+            gameState.ghosts = [];
+            gameState.collectedItems = [];
+            gameState.currentRoom = 0;
+            gameState.scares = 0;
+            gameState.itemsFound = 0;
+            gameState.gameTime = 0;
+            gameState.gameOver = false;
+            gameState.gameWon = false;
+            gameState.flickerTimer = 0;
+            gameState.flickerActive = false;
+            gameState.jumpScareActive = false;
+            gameState.lastRoomChange = 0;
+            gameState.difficulty = DIFFICULTY_LEVELS.NORMAL;
+            gameState.showLevelUp = false;
+            gameState.levelUpTimer = 0;
+            gameState.horrorProgression = 0;
+            
+            // Reset player
+            gameState.player.x = 100;
+            gameState.player.y = 300;
+            gameState.player.velocityX = 0;
+            gameState.player.velocityY = 0;
+            gameState.player.isOnGround = false;
+            
+            // Reset inventory UI
+            Object.values(inventoryItems).forEach(item => {
+                item.classList.remove('found');
+            });
+            
+            // Update difficulty display
+            updateDifficultyDisplay();
+            
+            // Create all rooms
+            for (let i = 0; i < roomConfigs.length; i++) {
+                createRoom(i);
+            }
+            
+            // Update UI
+            scareCount.textContent = gameState.scares;
+            itemCount.textContent = `${gameState.itemsFound}/${gameState.totalItems}`;
+            timeCount.textContent = "00:00";
+            roomIndicator.textContent = roomConfigs[gameState.currentRoom].name;
+            
+            // Hide screens
+            deathScreen.style.display = 'none';
+            escapeScreen.style.display = 'none';
+            jumpscareScreen.style.display = 'none';
+            levelUpScreen.style.display = 'none';
+            playerHighlight.style.display = 'none';
+        }
+        
+        // Update difficulty display
+        function updateDifficultyDisplay() {
+            difficultyFill.style.width = gameState.difficulty.fillPercent;
+            difficultyFill.style.background = gameState.difficulty.color;
+            difficultyLevel.textContent = gameState.difficulty.name;
+            difficultyLevel.style.color = gameState.difficulty.color;
+        }
+        
+        // Check and update difficulty based on horror progression
+        function updateDifficulty() {
+            const oldDifficulty = gameState.difficulty.name;
+            
+            // Increase horror based on items found and time
+            gameState.horrorProgression = (gameState.itemsFound / gameState.totalItems) * 70 + 
+                                         (Math.min(gameState.gameTime / 300, 30)); // Max 30% from time
+            
+            // Determine new difficulty
+            if (gameState.horrorProgression >= 70) {
+                gameState.difficulty = DIFFICULTY_LEVELS.HELL;
+            } else if (gameState.horrorProgression >= 50) {
+                gameState.difficulty = DIFFICULTY_LEVELS.NIGHTMARE;
+            } else if (gameState.horrorProgression >= 20) {
+                gameState.difficulty = DIFFICULTY_LEVELS.HAUNTED;
+            } else {
+                gameState.difficulty = DIFFICULTY_LEVELS.NORMAL;
+            }
+            
+            // Show level up message if difficulty increased
+            if (oldDifficulty !== gameState.difficulty.name && gameState.itemsFound > 0) {
+                showLevelUp();
+            }
+            
+            updateDifficultyDisplay();
+        }
+        
+        // Show level up screen
+        function showLevelUp() {
+            gameState.showLevelUp = true;
+            gameState.levelUpTimer = 120; // 2 seconds at 60fps
+            
+            const randomMessage = levelUpMessages[Math.floor(Math.random() * levelUpMessages.length)];
+            levelUpMessage.textContent = `${randomMessage} (${gameState.difficulty.name} MODE)`;
+            levelUpScreen.style.display = 'flex';
+        }
+        
+        // Create a room with difficulty-based elements
+        function createRoom(roomIndex) {
+            const config = roomConfigs[roomIndex];
+            const room = {
+                x: roomIndex * canvas.width,
+                y: 0,
+                width: canvas.width,
+                height: canvas.height,
+                color: adjustColorForDifficulty(config.color),
+                items: [],
+                traps: [],
+                doors: [],
+                lights: [],
+                ghosts: [],
+                platforms: [],
+                movingPlatforms: []
+            };
+            
+            // Create floor
+            room.platforms.push({
+                x: room.x,
+                y: canvas.height - 40,
+                width: canvas.width,
+                height: 40,
+                color: '#333',
+                solid: true
+            });
+            
+            // Create platforms based on difficulty
+            createPlatformsForRoom(room, roomIndex);
+            
+            // Add items
+            config.items.forEach((itemType, index) => {
+                room.items.push(createItem(room.x, itemType, index, false));
+            });
+            
+            // Add fake items based on difficulty
+            if (Math.random() < gameState.difficulty.fakeItemChance) {
+                config.fakeItems.forEach((fakeType, index) => {
+                    room.items.push(createItem(room.x, fakeType, index, true));
+                });
+            }
+            
+            // Add doors
+            if (roomIndex < roomConfigs.length - 1) {
+                room.doors.push({
+                    x: room.x + canvas.width - 80,
+                    y: canvas.height - 100,
+                    width: 50,
+                    height: 80,
+                    color: '#8a2be2',
+                    locked: roomIndex >= 2,
+                    nextRoom: roomIndex + 1
+                });
+            }
+            
+            // Final exit door
+            if (roomIndex === roomConfigs.length - 1) {
+                room.doors.push({
+                    x: room.x + canvas.width - 80,
+                    y: canvas.height - 100,
+                    width: 50,
+                    height: 80,
+                    color: '#ffcc00',
+                    locked: true,
+                    isExit: true
+                });
+            }
+            
+            // Add traps based on difficulty
+            createTrapsForRoom(room, roomIndex);
+            
+            // Add lights that flicker based on difficulty
+            createLightsForRoom(room, roomIndex);
+            
+            // Add moving platforms in higher difficulties
+            if (gameState.difficulty.name !== "NORMAL" && roomIndex > 1) {
+                createMovingPlatformsForRoom(room, roomIndex);
+            }
+            
+            gameState.rooms.push(room);
+        }
+        
+        // Adjust color based on difficulty (darker for higher difficulties)
+        function adjustColorForDifficulty(color) {
+            if (gameState.difficulty.darkness > 0.5) {
+                return "#050505"; // Almost black for nightmare/hell
+            } else if (gameState.difficulty.darkness > 0.3) {
+                return "#0a0a0a"; // Very dark for haunted
+            }
+            return color;
+        }
+        
+        // Create platforms for room
+        function createPlatformsForRoom(room, roomIndex) {
+            // Base platforms
+            const basePlatforms = [
+                {x: room.x + 80, y: 250, width: 80, height: 15, color: '#444'},
+                {x: room.x + 300, y: 200, width: 80, height: 15, color: '#444'},
+                {x: room.x + 500, y: 150, width: 80, height: 15, color: '#444'}
+            ];
+            
+            // Add disappearing platforms in higher difficulties
+            basePlatforms.forEach((platform, index) => {
+                // In higher difficulties, some platforms disappear
+                if (gameState.difficulty.name !== "NORMAL" && Math.random() < gameState.difficulty.trapChance * 0.5) {
+                    room.traps.push({
+                        x: platform.x,
+                        y: platform.y,
+                        width: platform.width,
+                        height: platform.height,
+                        color: '#ffcc00',
+                        type: 'disappearingPlatform',
+                        active: true,
+                        disappearTimer: 0,
+                        disappearDelay: 60 + Math.random() * 60,
+                        reappearDelay: 120 + Math.random() * 120
+                    });
+                } else {
+                    room.platforms.push({
+                        ...platform,
+                        solid: true
+                    });
+                }
+            });
+            
+            // Add extra platforms in haunted/nightmare modes
+            if (gameState.difficulty.name !== "NORMAL") {
+                const extraCount = gameState.difficulty.name === "NIGHTMARE" ? 3 : 2;
+                for (let i = 0; i < extraCount; i++) {
+                    room.platforms.push({
+                        x: room.x + 100 + i * 150,
+                        y: 300 - i * 40,
+                        width: 60,
+                        height: 12,
+                        color: '#555',
+                        solid: true
+                    });
+                }
+            }
+        }
+        
+        // Create traps for room based on difficulty
+        function createTrapsForRoom(room, roomIndex) {
+            // Floor traps
+            const trapCount = Math.floor(gameState.difficulty.trapChance * 3) + 1;
+            for (let i = 0; i < trapCount; i++) {
+                room.traps.push({
+                    x: room.x + 100 + i * 150,
+                    y: canvas.height - 60,
+                    width: 50,
+                    height: 10,
+                    color: '#ff4444',
+                    type: 'floorTrap',
+                    active: true,
+                    triggerTimer: 0,
+                    triggerDelay: 30 + Math.random() * 60
+                });
+            }
+            
+            // Ghost spawn traps in higher difficulties
+            if (gameState.difficulty.name !== "NORMAL") {
+                const ghostTrapCount = gameState.difficulty.name === "HELL" ? 3 : 2;
+                for (let i = 0; i < ghostTrapCount; i++) {
+                    room.traps.push({
+                        x: room.x + 200 + i * 100,
+                        y: canvas.height - 80,
+                        width: 40,
+                        height: 8,
+                        color: '#8a2be2',
+                        type: 'ghostTrap',
+                        active: true,
+                        triggered: false
+                    });
+                }
+            }
+            
+            // Spike traps in nightmare/hell
+            if (gameState.difficulty.name === "NIGHTMARE" || gameState.difficulty.name === "HELL") {
+                const spikeCount = gameState.difficulty.name === "HELL" ? 4 : 2;
+                for (let i = 0; i < spikeCount; i++) {
+                    room.traps.push({
+                        x: room.x + 80 + i * 120,
+                        y: canvas.height - 100,
+                        width: 20,
+                        height: 30,
+                        color: '#cc0000',
+                        type: 'spikeTrap',
+                        active: true,
+                        extended: false,
+                        extendTimer: 0,
+                        extendDelay: 90 + Math.random() * 90
+                    });
+                }
+            }
+        }
+        
+        // Create lights for room
+        function createLightsForRoom(room, roomIndex) {
+            const lightCount = gameState.difficulty.name === "NORMAL" ? 1 : 2;
+            for (let i = 0; i < lightCount; i++) {
+                room.lights.push({
+                    x: room.x + 150 + i * 200,
+                    y: 50,
+                    radius: 30 + (gameState.difficulty.name === "NIGHTMARE" ? -10 : 0),
+                    color: '#ffcc00',
+                    flicker: true,
+                    flickerTimer: Math.random() * 80,
+                    on: true,
+                    flickerChance: gameState.difficulty.flickerChance
+                });
+            }
+        }
+        
+        // Create moving platforms for higher difficulties
+        function createMovingPlatformsForRoom(room, roomIndex) {
+            const movingCount = gameState.difficulty.name === "HELL" ? 3 : 2;
+            for (let i = 0; i < movingCount; i++) {
+                room.movingPlatforms.push({
+                    x: room.x + 100 + i * 150,
+                    y: 180 + i * 40,
+                    width: 70,
+                    height: 12,
+                    color: '#33cc33',
+                    speed: gameState.difficulty.ghostSpeed * 0.5,
+                    direction: i % 2 === 0 ? 1 : -1,
+                    minX: room.x + 50,
+                    maxX: room.x + canvas.width - 120
+                });
+            }
+        }
+        
+        // Create an item
+        function createItem(roomX, itemType, index, isFake) {
+            const positions = [
+                {x: roomX + 120, y: 230},
+                {x: roomX + 280, y: 180},
+                {x: roomX + 440, y: 130},
+                {x: roomX + 200, y: 280},
+                {x: roomX + 360, y: 200}
+            ];
+            
+            const posIndex = index % positions.length;
+            const realType = isFake ? itemType.substring(4) : itemType;
+            
+            let symbol, color;
+            switch(realType) {
+                case 'key1':
+                case 'key2':
+                    symbol = '🔑';
+                    color = isFake ? '#ffcc00' : '#8a2be2';
+                    break;
+                case 'candle':
+                    symbol = '🕯️';
+                    color = isFake ? '#aaaaaa' : '#ffcc00';
+                    break;
+                case 'amulet':
+                    symbol = '🧿';
+                    color = isFake ? '#666666' : '#00cc66';
+                    break;
+                case 'note':
+                    symbol = '📜';
+                    color = isFake ? '#999999' : '#ff9966';
+                    break;
+                default:
+                    symbol = '❓';
+                    color = '#ff4444';
+            }
+            
+            return {
+                x: positions[posIndex].x,
+                y: positions[posIndex].y,
+                width: 25,
+                height: 25,
+                symbol: symbol,
+                color: color,
+                type: itemType,
+                isFake: isFake,
+                collected: false,
+                collectedTimer: 0
+            };
+        }
+        
+        // Update game state
+        function update() {
+            if (gameState.gameOver || gameState.gameWon || gameState.jumpScareActive) return;
+            
+            // Handle level up screen
+            if (gameState.showLevelUp) {
+                gameState.levelUpTimer--;
+                if (gameState.levelUpTimer <= 0) {
+                    gameState.showLevelUp = false;
+                    levelUpScreen.style.display = 'none';
+                }
+                return;
+            }
+            
+            // Update game time
+            gameState.gameTime += 1/60;
+            updateTimeDisplay();
+            
+            // Update difficulty
+            updateDifficulty();
+            
+            // Update debounce timer
+            if (gameState.lastRoomChange > 0) {
+                gameState.lastRoomChange--;
+            }
+            
+            // Update player glow
+            gameState.player.glowTimer++;
+            if (gameState.player.glowTimer > 30) {
+                gameState.player.glow = !gameState.player.glow;
+                gameState.player.glowTimer = 0;
+            }
+            
+            // Apply gravity (slightly stronger in higher difficulties)
+            const gravity = 0.6 + (gameState.difficulty.darkness * 0.2);
+            gameState.player.velocityY += gravity;
+            
+            // Apply friction
+            gameState.player.velocityX *= 0.9;
+            
+            // Handle keyboard input
+            if (gameState.keys['ArrowLeft'] || gameState.keys['a'] || gameState.keys['A']) {
+                gameState.player.velocityX = -gameState.player.speed;
+            }
+            if (gameState.keys['ArrowRight'] || gameState.keys['d'] || gameState.keys['D']) {
+                gameState.player.velocityX = gameState.player.speed;
+            }
+            if ((gameState.keys[' '] || gameState.keys['ArrowUp'] || gameState.keys['w'] || gameState.keys['W']) && gameState.player.isOnGround) {
+                gameState.player.velocityY = -gameState.player.jumpForce;
+                gameState.player.isOnGround = false;
+            }
+            
+            // Update player position
+            gameState.player.x += gameState.player.velocityX;
+            gameState.player.y += gameState.player.velocityY;
+            
+            // Keep player in world bounds
+            if (gameState.player.x < 0) {
+                gameState.player.x = 0;
+                gameState.player.velocityX = 0;
+            }
+            
+            const maxX = (gameState.rooms.length - 1) * canvas.width + canvas.width - gameState.player.width;
+            if (gameState.player.x > maxX) {
+                gameState.player.x = maxX;
+                gameState.player.velocityX = 0;
+            }
+            
+            // Reset ground state
+            gameState.player.isOnGround = false;
+            
+            // Get current room
+            const currentRoom = gameState.rooms[gameState.currentRoom];
+            
+            // Check collisions with platforms
+            currentRoom.platforms.forEach(platform => {
+                if (checkCollision(gameState.player, platform) && platform.solid) {
+                    handlePlatformCollision(platform);
+                }
+            });
+            
+            // Check collisions with moving platforms
+            currentRoom.movingPlatforms?.forEach(platform => {
+                if (checkCollision(gameState.player, platform)) {
+                    handlePlatformCollision(platform);
+                    // Move with platform
+                    gameState.player.x += platform.speed * platform.direction;
+                }
+                
+                // Update moving platform position
+                platform.x += platform.speed * platform.direction;
+                if (platform.x <= platform.minX || platform.x + platform.width >= platform.maxX) {
+                    platform.direction *= -1;
+                }
+            });
+            
+            // Check collisions with traps
+            currentRoom.traps.forEach(trap => {
+                if (!trap.active) return;
+                
+                // Floor traps
+                if (trap.type === 'floorTrap') {
+                    trap.triggerTimer++;
+                    if (trap.triggerTimer > trap.triggerDelay) {
+                        if (checkCollision(gameState.player, trap)) {
+                            triggerTrapDeath();
+                        }
+                    }
+                }
+                
+                // Ghost traps
+                else if (trap.type === 'ghostTrap' && !trap.triggered && checkCollision(gameState.player, trap)) {
+                    trap.triggered = true;
+                    triggerGhostTrap();
+                }
+                
+                // Spike traps
+                else if (trap.type === 'spikeTrap') {
+                    trap.extendTimer++;
+                    if (trap.extendTimer > trap.extendDelay) {
+                        trap.extended = !trap.extended;
+                        trap.extendTimer = 0;
+                        if (trap.extended && checkCollision(gameState.player, trap)) {
+                            triggerTrapDeath();
+                        }
+                    }
+                }
+                
+                // Disappearing platforms
+                else if (trap.type === 'disappearingPlatform') {
+                    trap.disappearTimer++;
+                    if (trap.disappearTimer > trap.disappearDelay) {
+                        trap.active = false;
+                        setTimeout(() => {
+                            trap.active = true;
+                            trap.disappearTimer = 0;
+                        }, trap.reappearDelay);
+                    } else if (checkCollision(gameState.player, trap) && trap.active) {
+                        // Player is on the platform
+                        gameState.player.y = trap.y - gameState.player.height;
+                        gameState.player.velocityY = 0;
+                        gameState.player.isOnGround = true;
+                    }
+                }
+            });
+            
+            // Check collisions with items
+            currentRoom.items.forEach(item => {
+                if (!item.collected && checkCollision(gameState.player, item)) {
+                    item.collected = true;
+                    item.collectedTimer = 30;
+                    
+                    if (item.isFake) {
+                        // Fake item - trick the player
+                        showMessage("This item is fake! It vanishes...");
+                        gameState.scares++;
+                        scareCount.textContent = gameState.scares;
+                        
+                        // Higher chance for jump scare in higher difficulties
+                        if (Math.random() < gameState.difficulty.jumpScareChance) {
+                            triggerJumpScare();
+                        }
+                    } else {
+                        // Real item
+                        gameState.collectedItems.push(item.type);
+                        gameState.itemsFound++;
+                        
+                        // Update inventory UI
+                        if (item.type === 'key1') {
+                            inventoryItems.key1.classList.add('found');
+                            showMessage("You found the first key!");
+                        } else if (item.type === 'key2') {
+                            inventoryItems.key2.classList.add('found');
+                            showMessage("You found the second key!");
+                        } else if (item.type === 'candle') {
+                            inventoryItems.candle.classList.add('found');
+                            showMessage("You found a candle!");
+                        } else if (item.type === 'amulet') {
+                            inventoryItems.amulet.classList.add('found');
+                            showMessage("You found a protective amulet!");
+                        } else if (item.type === 'note') {
+                            inventoryItems.note.classList.add('found');
+                            showMessage("You found an ancient note!");
+                        }
+                        
+                        itemCount.textContent = `${gameState.itemsFound}/${gameState.totalItems}`;
+                        
+                        // Check if all items collected
+                        if (gameState.itemsFound >= gameState.totalItems) {
+                            // Unlock the final door
+                            const lastRoom = gameState.rooms[gameState.rooms.length - 1];
+                            lastRoom.doors.forEach(door => {
+                                if (door.isExit) {
+                                    door.locked = false;
+                                    door.color = '#00cc66';
+                                }
+                            });
+                            showMessage("The final door is now unlocked! Find the exit!");
+                        }
+                    }
+                }
+                
+                // Update collected item timer
+                if (item.collected) {
+                    item.collectedTimer--;
+                    if (item.collectedTimer <= 0) {
+                        const index = currentRoom.items.indexOf(item);
+                        if (index > -1) {
+                            currentRoom.items.splice(index, 1);
+                        }
+                    }
+                }
+            });
+            
+            // Check collisions with doors
+            currentRoom.doors.forEach(door => {
+                if (checkCollision(gameState.player, door)) {
+                    if (door.isExit && !door.locked) {
+                        // Player escapes!
+                        gameState.gameWon = true;
+                        escapeScreen.style.display = 'flex';
+                        const minutes = Math.floor(gameState.gameTime / 60);
+                        const seconds = Math.floor(gameState.gameTime % 60);
+                        escapeMessage.textContent = `You escaped in ${minutes}:${seconds.toString().padStart(2, '0')} with ${gameState.scares} scares!`;
+                        escapeDifficulty.textContent = gameState.difficulty.name;
+                    } else if (!door.locked && gameState.lastRoomChange <= 0) {
+                        // Move to next room
+                        changeRoom(door.nextRoom);
+                        gameState.lastRoomChange = 30;
+                    } else if (door.locked) {
+                        if (door.nextRoom >= 2) {
+                            showMessage("The door is locked! You need keys to proceed.");
+                        }
+                    }
+                }
+            });
+            
+            // Update flickering lights
+            currentRoom.lights.forEach(light => {
+                if (light.flicker) {
+                    light.flickerTimer++;
+                    if (light.flickerTimer > 20 + Math.random() * 30) {
+                        if (Math.random() < light.flickerChance) {
+                            light.on = !light.on;
+                        }
+                        light.flickerTimer = 0;
+                    }
+                }
+            });
+            
+            // Random ghost appearances based on difficulty
+            if (Math.random() < gameState.difficulty.ghostChance / 60) {
+                triggerGhostAppearance();
+            }
+            
+            // Random jump scares based on difficulty
+            if (Math.random() < gameState.difficulty.jumpScareChance / 180) {
+                triggerJumpScare();
+            }
+            
+            // Update flicker effect for the whole room based on difficulty
+            gameState.flickerTimer++;
+            if (gameState.flickerTimer > 50 + Math.random() * 100) {
+                if (Math.random() < gameState.difficulty.flickerChance) {
+                    gameState.flickerActive = !gameState.flickerActive;
+                }
+                gameState.flickerTimer = 0;
+            }
+            
+            // Update ghosts
+            updateGhosts();
+            
+            // Check if player fell off
+            if (gameState.player.y > canvas.height + 100) {
+                playerDie();
+            }
+            
+            // Update current room based on player position
+            updateCurrentRoom();
+            
+            // Update camera
+            updateCamera();
+            
+            // Update player highlight position
+            updatePlayerHighlight();
+        }
+        
+        // Handle platform collision
+        function handlePlatformCollision(platform) {
+            if (checkCollision(gameState.player, platform)) {
+                // Collision from top
+                if (gameState.player.velocityY > 0 && 
+                    gameState.player.y + gameState.player.height - gameState.player.velocityY <= platform.y) {
+                    gameState.player.y = platform.y - gameState.player.height;
+                    gameState.player.velocityY = 0;
+                    gameState.player.isOnGround = true;
+                }
+                // Collision from bottom
+                else if (gameState.player.velocityY < 0 && 
+                         gameState.player.y - gameState.player.velocityY >= platform.y + platform.height) {
+                    gameState.player.y = platform.y + platform.height;
+                    gameState.player.velocityY = 0;
+                }
+                // Collision from sides
+                else {
+                    if (gameState.player.velocityX > 0) {
+                        gameState.player.x = platform.x - gameState.player.width;
+                    } else if (gameState.player.velocityX < 0) {
+                        gameState.player.x = platform.x + platform.width;
+                    }
+                    gameState.player.velocityX = 0;
+                }
+            }
+        }
+        
+        // Update current room based on player position
+        function updateCurrentRoom() {
+            const newRoom = Math.floor(gameState.player.x / canvas.width);
+            if (newRoom !== gameState.currentRoom && newRoom >= 0 && newRoom < gameState.rooms.length) {
+                gameState.currentRoom = newRoom;
+                roomIndicator.textContent = roomConfigs[gameState.currentRoom].name;
+            }
+        }
+        
+        // Draw the game
+        function draw() {
+            const currentRoom = gameState.rooms[gameState.currentRoom];
+            
+            // Clear canvas with room color
+            const darkness = gameState.difficulty.darkness;
+            const roomColor = darkenColor(currentRoom.color, darkness);
+            ctx.fillStyle = gameState.flickerActive ? darkenColor(roomColor, 0.3) : roomColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Apply camera transformation
+            ctx.save();
+            ctx.translate(-gameState.cameraX, -gameState.cameraY);
+            
+            // Draw platforms
+            currentRoom.platforms.forEach(platform => {
+                ctx.fillStyle = platform.color;
+                ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+            });
+            
+            // Draw moving platforms
+            currentRoom.movingPlatforms?.forEach(platform => {
+                ctx.fillStyle = platform.color;
+                ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+            });
+            
+            // Draw traps
+            currentRoom.traps.forEach(trap => {
+                if (!trap.active) return;
+                
+                ctx.fillStyle = trap.color;
+                
+                if (trap.type === 'floorTrap') {
+                    ctx.fillRect(trap.x, trap.y, trap.width, trap.height);
+                    // Pulsing effect when about to trigger
+                    if (trap.triggerTimer > trap.triggerDelay * 0.8) {
+                        const alpha = 0.5 + 0.5 * Math.sin(Date.now() / 200);
+                        ctx.fillStyle = `rgba(255, 68, 68, ${alpha})`;
+                        ctx.fillRect(trap.x, trap.y, trap.width, trap.height);
+                    }
+                } else if (trap.type === 'ghostTrap') {
+                    ctx.fillRect(trap.x, trap.y, trap.width, trap.height);
+                } else if (trap.type === 'spikeTrap') {
+                    if (trap.extended) {
+                        // Draw spike extended
+                        ctx.fillRect(trap.x, trap.y - 20, trap.width, trap.height + 20);
+                    } else {
+                        // Draw spike retracted
+                        ctx.fillRect(trap.x, trap.y, trap.width, 5);
+                    }
+                } else if (trap.type === 'disappearingPlatform') {
+                    const alpha = 1 - (trap.disappearTimer / trap.disappearDelay);
+                    ctx.fillStyle = `rgba(255, 204, 0, ${alpha})`;
+                    ctx.fillRect(trap.x, trap.y, trap.width, trap.height);
+                }
+            });
+            
+            // Draw items
+            currentRoom.items.forEach(item => {
+                if (!item.collected || item.collectedTimer > 0) {
+                    const alpha = item.collected ? item.collectedTimer / 30 : 1;
+                    
+                    // Draw item background
+                    ctx.fillStyle = item.isFake ? 'rgba(255, 204, 0, 0.3)' : 'rgba(138, 43, 226, 0.3)';
+                    ctx.fillRect(item.x - 4, item.y - 4, item.width + 8, item.height + 8);
+                    
+                    // Draw item
+                    ctx.font = '20px Arial';
+                    ctx.fillStyle = item.isFake ? 'rgba(255, 204, 0, ' + alpha + ')' : 'rgba(138, 43, 226, ' + alpha + ')';
+                    ctx.fillText(item.symbol, item.x, item.y + 20);
+                }
+            });
+            
+            // Draw doors
+            currentRoom.doors.forEach(door => {
+                ctx.fillStyle = door.locked ? '#666666' : door.color;
+                ctx.fillRect(door.x, door.y, door.width, door.height);
+                
+                // Door details
+                ctx.fillStyle = '#333';
+                ctx.fillRect(door.x + 8, door.y + 15, door.width - 16, door.height - 30);
+                
+                // Door handle
+                ctx.fillStyle = door.locked ? '#ff4444' : '#ffcc00';
+                ctx.beginPath();
+                ctx.arc(door.x + door.width - 15, door.y + door.height/2, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Lock icon for locked doors
+                if (door.locked) {
+                    ctx.fillStyle = '#ff4444';
+                    ctx.font = '16px Arial';
+                    ctx.fillText('🔒', door.x + 15, door.y + 30);
+                }
+                
+                // Exit sign for final door
+                if (door.isExit) {
+                    ctx.fillStyle = door.locked ? '#666666' : '#00cc66';
+                    ctx.font = '14px Arial';
+                    ctx.fillText('EXIT', door.x + 12, door.y - 8);
+                }
+            });
+            
+            // Draw lights
+            currentRoom.lights.forEach(light => {
+                if (light.on) {
+                    // Light glow
+                    const gradient = ctx.createRadialGradient(
+                        light.x, light.y, 0,
+                        light.x, light.y, light.radius
+                    );
+                    gradient.addColorStop(0, 'rgba(255, 204, 0, 0.6)');
+                    gradient.addColorStop(1, 'rgba(255, 204, 0, 0)');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(light.x - light.radius, light.y - light.radius, 
+                                light.radius * 2, light.radius * 2);
+                    
+                    // Light bulb
+                    ctx.fillStyle = '#ffcc00';
+                    ctx.beginPath();
+                    ctx.arc(light.x, light.y, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            
+            // Draw player with glow effect
+            if (gameState.player.glow) {
+                // Player glow
+                const gradient = ctx.createRadialGradient(
+                    gameState.player.x + gameState.player.width/2,
+                    gameState.player.y + gameState.player.height/2,
+                    0,
+                    gameState.player.x + gameState.player.width/2,
+                    gameState.player.y + gameState.player.height/2,
+                    gameState.player.width * 1.5
+                );
+                gradient.addColorStop(0, 'rgba(138, 43, 226, 0.6)');
+                gradient.addColorStop(1, 'rgba(138, 43, 226, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(
+                    gameState.player.x - gameState.player.width,
+                    gameState.player.y - gameState.player.height,
+                    gameState.player.width * 3,
+                    gameState.player.height * 3
+                );
+            }
+            
+            // Draw player body
+            ctx.fillStyle = gameState.player.color;
+            ctx.fillRect(gameState.player.x, gameState.player.y, 
+                        gameState.player.width, gameState.player.height);
+            
+            // Draw player face (changes based on difficulty)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(gameState.player.x + 6, gameState.player.y + 8, 5, 6);
+            ctx.fillRect(gameState.player.x + gameState.player.width - 11, gameState.player.y + 8, 5, 6);
+            
+            // Player expression (more scared in higher difficulties)
+            ctx.fillStyle = '#000000';
+            if (gameState.difficulty.name === "NIGHTMARE" || gameState.difficulty.name === "HELL") {
+                // Terrified expression
+                ctx.fillRect(gameState.player.x + 7, gameState.player.y + 18, 3, 2);
+                ctx.fillRect(gameState.player.x + gameState.player.width - 10, gameState.player.y + 18, 3, 2);
+                ctx.beginPath();
+                ctx.arc(gameState.player.x + gameState.player.width/2, gameState.player.y + 22, 8, 0, Math.PI);
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            } else if (gameState.difficulty.name === "HAUNTED" || gameState.scares > 3) {
+                // Scared expression
+                ctx.fillRect(gameState.player.x + 7, gameState.player.y + 16, 3, 2);
+                ctx.fillRect(gameState.player.x + gameState.player.width - 10, gameState.player.y + 16, 3, 2);
+                ctx.beginPath();
+                ctx.arc(gameState.player.x + gameState.player.width/2, gameState.player.y + 22, 5, 0, Math.PI);
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            } else {
+                // Normal expression
+                ctx.fillRect(gameState.player.x + 7, gameState.player.y + 15, 3, 3);
+                ctx.fillRect(gameState.player.x + gameState.player.width - 10, gameState.player.y + 15, 3, 3);
+                ctx.beginPath();
+                ctx.arc(gameState.player.x + gameState.player.width/2, gameState.player.y + 24, 6, 0, Math.PI, true);
+                ctx.fill();
+            }
+            
+            // Draw ghosts
+            gameState.ghosts.forEach(ghost => {
+                const alpha = ghost.timer / 60;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(ghost.x, ghost.y, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Ghost face
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(ghost.x - 5, ghost.y - 2, 3, 0, Math.PI * 2);
+                ctx.arc(ghost.x + 5, ghost.y - 2, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(ghost.x, ghost.y + 4, 4, 0, Math.PI);
+                ctx.fill();
+                
+                ctx.globalAlpha = 1;
+            });
+            
+            ctx.restore();
+        }
+        
+        // Darken a color
+        function darkenColor(color, amount) {
+            // Simple color darkening for hex colors
+            if (color.startsWith('#')) {
+                let r = parseInt(color.slice(1, 3), 16);
+                let g = parseInt(color.slice(3, 5), 16);
+                let b = parseInt(color.slice(5, 7), 16);
+                
+                r = Math.floor(r * (1 - amount));
+                g = Math.floor(g * (1 - amount));
+                b = Math.floor(b * (1 - amount));
+                
+                return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+            }
+            return color;
+        }
+        
+        // Update camera to follow player
+        function updateCamera() {
+            const currentRoom = gameState.rooms[gameState.currentRoom];
+            gameState.cameraX = currentRoom.x;
+            gameState.cameraY = 0;
+        }
+        
+        // Update player highlight position
+        function updatePlayerHighlight() {
+            const highlightCircle = playerHighlight.querySelector('.highlight-circle');
+            const screenX = gameState.player.x - gameState.cameraX;
+            const screenY = gameState.player.y;
+            
+            // Show highlight in higher difficulties when it's dark
+            if (gameState.difficulty.darkness > 0.3 || gameState.flickerActive) {
+                playerHighlight.style.display = 'block';
+                highlightCircle.style.width = (gameState.player.width * 2.5) + 'px';
+                highlightCircle.style.height = (gameState.player.height * 2.5) + 'px';
+                highlightCircle.style.left = (screenX - gameState.player.width * 0.75) + 'px';
+                highlightCircle.style.top = (screenY - gameState.player.height * 0.75) + 'px';
+            } else {
+                playerHighlight.style.display = 'none';
+            }
+        }
+        
+        // Check collision between two rectangles
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+        
+        // Change rooms
+        function changeRoom(newRoomIndex) {
+            if (newRoomIndex < 0 || newRoomIndex >= gameState.rooms.length) return;
+            
+            gameState.currentRoom = newRoomIndex;
+            roomIndicator.textContent = roomConfigs[newRoomIndex].name;
+        }
+        
+        // Show message notification
+        function showMessage(message) {
+            messageNotification.textContent = message;
+            messageNotification.style.display = 'block';
+            
+            setTimeout(() => {
+                messageNotification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Trigger a jump scare
+        function triggerJumpScare() {
+            if (gameState.jumpScareActive) return;
+            
+            gameState.jumpScareActive = true;
+            gameState.scares++;
+            scareCount.textContent = gameState.scares;
+            
+            // Show jump scare screen
+            jumpscareScreen.style.display = 'flex';
+            jumpscareScreen.classList.add('ghost-appear');
+            
+            // Hide after duration based on difficulty (longer in higher difficulties)
+            const duration = gameState.difficulty.name === "HELL" ? 1500 : 1000;
+            setTimeout(() => {
+                jumpscareScreen.style.display = 'none';
+                jumpscareScreen.classList.remove('ghost-appear');
+                gameState.jumpScareActive = false;
+                
+                // Show scare message
+                showMessage("BOO! That was a jump scare!");
+            }, duration);
+        }
+        
+        // Trigger ghost trap
+        function triggerGhostTrap() {
+            gameState.scares++;
+            scareCount.textContent = gameState.scares;
+            
+            // Create a ghost at player position
+            gameState.ghosts.push({
+                x: gameState.player.x + gameState.player.width/2,
+                y: gameState.player.y - 25,
+                timer: 50,
+                speed: gameState.difficulty.ghostSpeed,
+                chasePlayer: true
+            });
+            
+            showMessage("A ghost trap! The spirits are angry!");
+            
+            // Higher chance to trigger jump scare in higher difficulties
+            if (Math.random() < gameState.difficulty.jumpScareChance * 1.5) {
+                setTimeout(() => {
+                    triggerJumpScare();
+                }, 600);
+            }
+        }
+        
+        // Trigger random ghost appearance
+        function triggerGhostAppearance() {
+            gameState.scares++;
+            scareCount.textContent = gameState.scares;
+            
+            // Create a ghost at random position
+            const currentRoom = gameState.rooms[gameState.currentRoom];
+            gameState.ghosts.push({
+                x: currentRoom.x + 80 + Math.random() * (canvas.width - 160),
+                y: 80 + Math.random() * 150,
+                timer: 30 + Math.random() * 30,
+                speed: gameState.difficulty.ghostSpeed,
+                chasePlayer: Math.random() < 0.5
+            });
+            
+            // Random ghost message
+            const messages = [
+                "A ghost appears!",
+                "The air grows cold...",
+                "Something watches you..."
+            ];
+            showMessage(messages[Math.floor(Math.random() * messages.length)]);
+        }
+        
+        // Update ghosts
+        function updateGhosts() {
+            for (let i = gameState.ghosts.length - 1; i >= 0; i--) {
+                const ghost = gameState.ghosts[i];
+                ghost.timer--;
+                
+                // Move ghost towards player if chasing
+                if (ghost.chasePlayer && ghost.timer > 10) {
+                    const dx = gameState.player.x + gameState.player.width/2 - ghost.x;
+                    const dy = gameState.player.y + gameState.player.height/2 - ghost.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > 0) {
+                        ghost.x += (dx / distance) * ghost.speed;
+                        ghost.y += (dy / distance) * ghost.speed;
+                    }
+                    
+                    // Check collision with player
+                    if (distance < 20) {
+                        playerDie();
+                    }
+                }
+                
+                if (ghost.timer <= 0) {
+                    gameState.ghosts.splice(i, 1);
+                }
+            }
+        }
+        
+        // Trigger trap death
+        function triggerTrapDeath() {
+            playerDie();
+        }
+        
+        // Handle player death
+        function playerDie() {
+            gameState.gameOver = true;
+            const messages = deathMessages[gameState.difficulty.name] || deathMessages.NORMAL;
+            deathMessage.textContent = messages[Math.floor(Math.random() * messages.length)];
+            deathDifficulty.textContent = gameState.difficulty.name;
+            deathDifficulty.style.color = gameState.difficulty.color;
+            deathScreen.style.display = 'flex';
+        }
+        
+        // Update time display
+        function updateTimeDisplay() {
+            const minutes = Math.floor(gameState.gameTime / 60);
+            const seconds = Math.floor(gameState.gameTime % 60);
+            timeCount.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Start the game
+        function startGame() {
+            gameState.gameStarted = true;
+            startScreen.style.display = 'none';
+            initGame();
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (gameState.gameStarted && !gameState.gameOver && !gameState.gameWon) {
+                update();
+                draw();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Event listeners
+        window.addEventListener('keydown', (e) => {
+            gameState.keys[e.key] = true;
+            
+            if (e.key === ' ' && e.target === document.body) {
+                e.preventDefault();
+            }
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            gameState.keys[e.key] = false;
+        });
+        
+        // Button event listeners
+        startButton.addEventListener('click', startGame);
+        
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !gameState.gameStarted) {
+                startGame();
+            }
+        });
+        
+        respawnButton.addEventListener('click', () => {
+            const currentRoom = gameState.rooms[gameState.currentRoom];
+            gameState.player.x = currentRoom.x + 80;
+            gameState.player.y = currentRoom.platforms[0].y - gameState.player.height;
+            gameState.player.velocityX = 0;
+            gameState.player.velocityY = 0;
+            
+            deathScreen.style.display = 'none';
+            gameState.gameOver = false;
+        });
+        
+        restartButton.addEventListener('click', () => {
+            initGame();
+            deathScreen.style.display = 'none';
+            gameState.gameOver = false;
+        });
+        
+        playAgainButton.addEventListener('click', () => {
+            escapeScreen.style.display = 'none';
+            initGame();
+        });
+        
+        menuButton.addEventListener('click', () => {
+            gameState.gameStarted = false;
+            escapeScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+        });
+        
+        continueButton.addEventListener('click', () => {
+            levelUpScreen.style.display = 'none';
+            gameState.showLevelUp = false;
+        });
+        
+        // Initialize and start the game loop
+        gameLoop();
+        }); // End of DOMContentLoaded
+    </script>
+</body>
+</html>

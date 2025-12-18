@@ -1,0 +1,611 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #00cec9;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --accent: #fd79a8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 206, 201, 0.1) 0%, transparent 20%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float linear infinite;
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: #4cc9f0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #4cc9f0;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            color: #4cc9f0;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-header p {
+            color: #a5a5a5;
+            font-size: 1.1rem;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .game-card {
+            background: linear-gradient(145deg, #1e1e2e, #2a2a3a);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid #2d2d3d;
+            cursor: pointer;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(108, 92, 231, 0.7);
+        }
+
+        .game-card:hover .game-icon {
+            transform: rotate(360deg) scale(1.2);
+            color: var(--secondary);
+        }
+
+        .play-button {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: auto;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .play-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            transition: all 0.5s ease;
+            z-index: -1;
+        }
+
+        .game-card:hover .play-button::before {
+            left: 0;
+        }
+
+        .game-card.coming-soon {
+            opacity: 0.7;
+            filter: grayscale(30%);
+        }
+
+        .game-card.coming-soon:hover {
+            transform: none;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: #2d2d3d;
+            cursor: not-allowed;
+        }
+
+        .game-card h3 {
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .game-card p {
+            color: #a5a5a5;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .coming-soon .game-icon {
+            color: #6c6c7c;
+        }
+
+        /* Footer Styles */
+        footer {
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            color: #a5a5a5;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .game-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .game-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Active game pulse animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .game-card:not(.coming-soon) {
+            animation: pulse 2s infinite;
+        }
+
+        /* New Animation Styles */
+        @keyframes scorePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes progressBar {
+            from { width: 0; }
+            to { width: var(--progress); }
+        }
+
+        @keyframes cardHover {
+            0% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+            100% { transform: translateY(0) rotate(0); }
+        }
+
+        @keyframes achievementGlow {
+            0% { box-shadow: 0 0 5px rgba(76, 201, 240, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(76, 201, 240, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(76, 201, 240, 0.5); }
+        }
+
+        .stats-card {
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            animation: cardHover 0.5s ease-in-out;
+        }
+
+        .progress-bar {
+            animation: progressBar 1s ease-out forwards;
+        }
+
+        .achievement-card {
+            animation: achievementGlow 3s infinite;
+        }
+
+        .achievement-card:hover {
+            transform: scale(1.05);
+            animation: none;
+        }
+
+        .game-card {
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-value {
+            animation: scorePulse 2s infinite;
+        }
+
+        .level-badge {
+            animation: pulse 2s infinite;
+        }
+
+        .game-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .game-icon:hover {
+            transform: rotate(360deg) scale(1.2);
+        }
+
+        .recent-activity-item {
+            animation: slideIn 0.5s ease-out forwards;
+            opacity: 0;
+            animation-delay: calc(var(--animation-order) * 0.1s);
+        }
+
+        /* Add animation delays for activity items */
+        .recent-activity-item:nth-child(1) { --animation-order: 1; }
+        .recent-activity-item:nth-child(2) { --animation-order: 2; }
+        .recent-activity-item:nth-child(3) { --animation-order: 3; }
+        .recent-activity-item:nth-child(4) { --animation-order: 4; }
+        .recent-activity-item:nth-child(5) { --animation-order: 5; }
+
+        .dashboard-header {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .quick-stats {
+            animation: slideIn 0.5s ease-out forwards;
+            opacity: 0;
+            animation-delay: 0.2s;
+        }
+
+        .achievements-section {
+            animation: slideIn 0.5s ease-out forwards;
+            opacity: 0;
+            animation-delay: 0.3s;
+        }
+
+        .recent-activity {
+            animation: slideIn 0.5s ease-out forwards;
+            opacity: 0;
+            animation-delay: 0.4s;
+        }
+
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(108, 92, 231, 0.7);
+            animation: glow 3s infinite;
+        }
+
+        .nav-links a {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes glow {
+            0% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary); }
+            50% { text-shadow: 0 0 20px var(--primary), 0 0 30px var(--primary); }
+            100% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary); }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{% url 'home' %}" class="logo">GameHub</a>
+            <div class="nav-links">
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'logout' %}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Welcome, {{ request.user.username }}!</h1>
+            <p>Choose a game to play</p>
+        </header>
+
+        <div class="game-grid">
+            <!-- Row 1 -->
+            <a class="game-card" href="{% url 'snake-game' %}">
+                <div class="game-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h3>Snake Game</h3>
+                <p>Classic snake with modern twist</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'chess-game' %}">
+                <div class="game-icon">
+                    <i class="fas fa-chess"></i>
+                </div>
+                <h3>Chess</h3>
+                <p>Strategic board game</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'puzzle-game' %}">
+                <div class="game-icon">
+                    <i class="fas fa-puzzle-piece"></i>
+                </div>
+                <h3>Puzzle</h3>
+                <p>Slide tiles to solve the puzzle</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <!-- Row 2 -->
+            <a class="game-card" href="{% url 'jumanji-game' %}">
+                <div class="game-icon">
+                    <i class="fas fa-dice-d20"></i>
+                </div>
+                <h3>Jumanji</h3>
+                <p>A jungle adventure board game</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'neon-car-racing' %}">
+                <div class="game-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3>Neon Car Racing</h3>
+                <p>High-speed racing through neon streets</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'python-learning-game' %}">
+                <div class="game-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3>Python Learning Adventure</h3>
+                <p>Learn Python through interactive challenges</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <!-- Row 3 -->
+            <a class="game-card" href="{% url 'memory-game' %}">
+                <div class="game-icon">
+                    <i class="fas fa-memory"></i>
+                </div>
+                <h3>Memory</h3>
+                <p>Test your memory with this fun game</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'pacman-game' %}">
+                <div class="game-icon">
+                    <i class="fas fa-ghost"></i>
+                </div>
+                <h3>Pacman</h3>
+                <p>Eat pellets and avoid ghosts</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'level-devil' %}">
+                <div class="game-icon">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <h3>Level Devil</h3>
+                <p>Trap-filled platformer challenge</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'troll-peril' %}">
+                <div class="game-icon">
+                    <i class="fas fa-skull-crossbones"></i>
+                </div>
+                <h3>Troll's Peril</h3>
+                <p>Deceptive traps and hidden hazards</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'flappy-bird' %}">
+                <div class="game-icon">
+                    <i class="fas fa-dove"></i>
+                </div>
+                <h3>Flappy Bird</h3>
+                <p>Fly through the pipes</p>
+                <div class="play-button">Play Now</div>
+            </a>
+
+            <a class="game-card" href="{% url 'escape' %}">
+                <div class="game-icon">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <h3>Escape</h3>
+                <p>Navigate through challenging escape rooms</p>
+                <div class="play-button">Play Now</div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; {% now "Y" %} GameHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Create floating particles
+        document.addEventListener('DOMContentLoaded', function() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 10 + 5;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                // Random color
+                const colors = ['#6c5ce7', '#00cec9', '#fd79a8', '#ffeaa7'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.backgroundColor = color;
+                
+                particlesContainer.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>

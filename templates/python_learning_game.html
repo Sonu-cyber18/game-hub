@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Learning Adventure</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        .game-container {
+            width: 95%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .character-section {
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .character {
+            width: 180px;
+            height: 280px;
+            background: linear-gradient(to bottom, #4e54c8, #8f94fb);
+            border-radius: 50% 50% 40% 40%;
+            position: relative;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(143, 148, 251, 0.6);
+            overflow: hidden;
+        }
+        
+        .character-face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: #ffdbac;
+            border-radius: 50%;
+            top: 70px;
+            left: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .character-eye {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 90px;
+        }
+        
+        .character-eye::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #1a2a6c;
+            border-radius: 50%;
+            top: 5px;
+            left: 5px;
+        }
+        
+        .eye-left {
+            left: 55px;
+        }
+        
+        .eye-right {
+            right: 55px;
+        }
+        
+        .character-mouth {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: #ff6b6b;
+            border-radius: 0 0 20px 20px;
+            bottom: 80px;
+            left: 70px;
+        }
+        
+        .speech-bubble {
+            position: absolute;
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 200px;
+            text-align: center;
+            z-index: 10;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            border: 15px solid transparent;
+            border-top-color: white;
+            transform: translateX(-50%);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            width: 30%;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd43b;
+        }
+        
+        .learning-section {
+            background: rgba(40, 40, 70, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .module-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffd43b;
+            font-size: 24px;
+            text-shadow: 0 0 10px rgba(255, 212, 59, 0.5);
+        }
+        
+        .lesson-content {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            flex-grow: 1;
+            margin-bottom: 15px;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+        
+        .code-editor {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .code-input {
+            width: 100%;
+            min-height: 120px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-run {
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            color: white;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+        }
+        
+        .btn-hint {
+            background: linear-gradient(to right, #ff6b6b, #ff9e7d);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .feedback.success {
+            background: rgba(0, 180, 155, 0.2);
+            border: 2px solid #00b09b;
+            display: block;
+        }
+        
+        .feedback.error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid #ff6b6b;
+            display: block;
+        }
+        
+        .progress-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .modules-nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .module-btn {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .module-btn.active {
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            box-shadow: 0 0 10px rgba(143, 148, 251, 0.5);
+        }
+        
+        .module-btn.completed {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .character {
+            animation: bounce 5s infinite ease-in-out;
+        }
+        
+        @media (max-width: 900px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .character-section {
+                order: 2;
+            }
+            
+            .learning-section {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="character-section">
+            <div class="speech-bubble" id="speech-bubble">
+                Welcome to Python Adventure! Let's start with variables.
+            </div>
+            
+            <div class="character">
+                <div class="character-face">
+                    <div class="character-eye eye-left"></div>
+                    <div class="character-eye eye-right"></div>
+                    <div class="character-mouth"></div>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="level">1</div>
+                    <div class="stat-label">Level</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="xp">0</div>
+                    <div class="stat-label">XP</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="completed">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="learning-section">
+            <h2 class="module-title" id="module-title">Variables and Data Types</h2>
+            
+            <div class="lesson-content" id="lesson-content">
+                <p>In Python, <strong>variables</strong> are used to store data values. Unlike some other programming languages, Python has no command for declaring a variable.</p>
+                <p>A variable is created the moment you first assign a value to it.</p>
+                <div class="code-editor">
+                    <pre># Variable assignment examples
+name = "Alice"
+age = 30
+height = 5.9
+is_student = True</pre>
+                </div>
+                <p>Python has various data types: integers, floats, strings, and booleans.</p>
+            </div>
+            
+            <div class="code-editor">
+                <h3><i class="fas fa-code"></i> Coding Challenge</h3>
+                <p id="challenge-text">Create a variable called 'score' and assign it the value 100</p>
+                <textarea class="code-input" id="code-input" placeholder="Write your Python code here..."># Write your code here</textarea>
+                <div class="buttons">
+                    <button class="btn btn-run" onclick="runCode()"><i class="fas fa-play"></i> Run Code</button>
+                    <button class="btn btn-submit" onclick="submitCode()"><i class="fas fa-check"></i> Submit Answer</button>
+                    <button class="btn btn-hint" onclick="showHint()"><i class="fas fa-lightbulb"></i> Hint</button>
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="progress-container">
+                <h3><i class="fas fa-tasks"></i> Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-bar"></div>
+                </div>
+                <p id="progress-text">Completed: 0%</p>
+            </div>
+            
+            <div class="modules-nav" id="modules-nav">
+                <!-- Module buttons will be added here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Python learning modules data
+        const pythonModules = [
+            {
+                id: 1,
+                title: "Variables and Data Types",
+                content: `<p>In Python, <strong>variables</strong> are used to store data values. Unlike some other programming languages, Python has no command for declaring a variable.</p>
+                <p>A variable is created the moment you first assign a value to it.</p>
+                <div class="code-editor">
+                    <pre># Variable assignment examples
+name = "Alice"
+age = 30
+height = 5.9
+is_student = True</pre>
+                </div>
+                <p>Python has various data types: integers, floats, strings, and booleans.</p>`,
+                challenge: {
+                    question: "Create a variable called 'score' and assign it the value 100",
+                    test: (code) => {
+                        try {
+                            // Create a safe environment to test the code
+                            const testEnv = {
+                                score: undefined
+                            };
+                            
+                            // Execute the code
+                            Function('"use strict";' + code)();
+                            
+                            // Check if score was created and has the right value
+                            return typeof score !== 'undefined' && score === 100;
+                        } catch (e) {
+                            return false;
+                        }
+                    },
+                    hint: "Use the assignment operator '=' to assign the value 100 to the variable 'score'"
+                }
+            },
+            {
+                id: 2,
+                title: "Lists",
+                content: `<p><strong>Lists</strong> are used to store multiple items in a single variable. Lists are created using square brackets:</p>
+                <div class="code-editor">
+                    <pre># Create a list
+fruits = ["apple", "banana", "cherry"]
+numbers = [1, 2, 3, 4, 5]</pre>
+                </div>
+                <p>List items are ordered, changeable, and allow duplicate values.</p>`,
+                challenge: {
+                    question: "Create a list called 'colors' with the values 'red', 'green', and 'blue'",
+                    test: (code) => {
+                        try {
+                            // Execute the code
+                            Function('"use strict";' + code)();
+                            
+                            // Check if colors was created and is the correct list
+                            return Array.isArray(colors) && 
+                                   colors.length === 3 && 
+                                   colors.includes('red') && 
+                                   colors.includes('green') && 
+                                   colors.includes('blue');
+                        } catch (e) {
+                            return false;
+                        }
+                    },
+                    hint: "Use square brackets [] to create a list and separate items with commas"
+                }
+            },
+            {
+                id: 3,
+                title: "Conditional Statements",
+                content: `<p>Python uses <strong>boolean variables</strong> to evaluate conditions. The boolean values True and False are returned when an expression is compared or evaluated.</p>
+                <div class="code-editor">
+                    <pre># If statement example
+x = 10
+if x > 5:
+    print("x is greater than 5")
+elif x == 5:
+    print("x is equal to 5")
+else:
+    print("x is less than 5")</pre>
+                </div>`,
+                challenge: {
+                    question: "Write an if statement that prints 'Even' if the variable 'number' is even",
+                    test: (code) => {
+                        try {
+                            let output = "";
+                            const originalConsoleLog = console.log;
+                            console.log = (msg) => { output += msg + "\n"; };
+                            
+                            // Test with even number
+                            number = 4;
+                            Function('"use strict";' + code)();
+                            
+                            // Test with odd number
+                            number = 7;
+                            Function('"use strict";' + code)();
+                            
+                            console.log = originalConsoleLog;
+                            
+                            return output.includes("Even") && !output.includes("Even", output.indexOf("Even") + 1);
+                        } catch (e) {
+                            return false;
+                        }
+                    },
+                    hint: "Use the modulo operator % to check if a number is even (number % 2 == 0)"
+                }
+            },
+            {
+                id: 4,
+                title: "Loops",
+                content: `<p>Python has two primitive loop commands: <strong>for loops</strong> and <strong>while loops</strong>.</p>
+                <div class="code-editor">
+                    <pre># For loop example
+fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)
+
+# While loop example
+count = 0
+while count < 5:
+    print(count)
+    count += 1</pre>
+                </div>`,
+                challenge: {
+                    question: "Write a for loop that prints numbers from 0 to 4",
+                    test: (code) => {
+                        try {
+                            let output = "";
+                            const originalConsoleLog = console.log;
+                            console.log = (msg) => { output += msg + "\n"; };
+                            
+                            Function('"use strict";' + code)();
+                            
+                            console.log = originalConsoleLog;
+                            
+                            const lines = output.trim().split('\n');
+                            return lines.length === 5 && 
+                                   lines[0] === '0' && 
+                                   lines[1] === '1' && 
+                                   lines[2] === '2' && 
+                                   lines[3] === '3' && 
+                                   lines[4] === '4';
+                        } catch (e) {
+                            return false;
+                        }
+                    },
+                    hint: "Use range(5) to generate numbers from 0 to 4"
+                }
+            },
+            {
+                id: 5,
+                title: "Functions",
+                content: `<p>A <strong>function</strong> is a block of code which only runs when it is called. You can pass data, known as parameters, into a function. A function can return data as a result.</p>
+                <div class="code-editor">
+                    <pre># Function definition
+def greet(name):
+    return "Hello, " + name
+
+# Function call
+message = greet("Alice")
+print(message)</pre>
+                </div>`,
+                challenge: {
+                    question: "Create a function called 'multiply' that takes two parameters and returns their product",
+                    test: (code) => {
+                        try {
+                            // Execute the code to define the function
+                            Function('"use strict";' + code)();
+                            
+                            // Test the function
+                            const result1 = multiply(3, 4);
+                            const result2 = multiply(5, 0);
+                            const result3 = multiply(-2, 6);
+                            
+                            return result1 === 12 && result2 === 0 && result3 === -12;
+                        } catch (e) {
+                            return false;
+                        }
+                    },
+                    hint: "Use the 'def' keyword to define a function and the '*' operator for multiplication"
+                }
+            }
+        ];
+
+        // Game state management
+        let currentModule = 0;
+        let xp = 0;
+        let level = 1;
+        let completedModules = JSON.parse(localStorage.getItem('pythonCompletedModules')) || [];
+        let characterMessages = [
+            "Great job! Let's move to the next challenge!",
+            "You're doing amazing! Keep it up!",
+            "Coding is fun, isn't it?",
+            "You're learning Python like a pro!",
+            "One more challenge to level up!",
+            "Wow, you're mastering Python basics!"
+        ];
+
+        // Initialize the game
+        function initGame() {
+            renderModuleList();
+            updateProgress();
+            updateStats();
+            
+            if (pythonModules.length > 0) {
+                showModule(0);
+            }
+        }
+
+        // Render the module list navigation
+        function renderModuleList() {
+            const modulesNav = document.getElementById('modules-nav');
+            modulesNav.innerHTML = '';
+            
+            pythonModules.forEach((module, index) => {
+                const btn = document.createElement('button');
+                btn.className = `module-btn ${index === currentModule ? 'active' : ''} ${completedModules.includes(module.id) ? 'completed' : ''}`;
+                btn.textContent = module.title;
+                btn.addEventListener('click', () => showModule(index));
+                modulesNav.appendChild(btn);
+            });
+        }
+
+        // Show a specific module
+        function showModule(index) {
+            currentModule = index;
+            const module = pythonModules[index];
+            
+            document.getElementById('module-title').textContent = module.title;
+            document.getElementById('lesson-content').innerHTML = module.content;
+            document.getElementById('challenge-text').textContent = module.challenge.question;
+            document.getElementById('code-input').value = "# Write your code here";
+            
+            const speechBubble = document.getElementById('speech-bubble');
+            speechBubble.textContent = `Now learning: ${module.title}`;
+            
+            renderModuleList();
+        }
+
+        // Run the code (for testing)
+        function runCode() {
+            const code = document.getElementById('code-input').value;
+            const feedback = document.getElementById('feedback');
+            
+            try {
+                let output = "";
+                const originalConsoleLog = console.log;
+                console.log = (msg) => { output += msg + "\n"; };
+                
+                Function('"use strict";' + code)();
+                
+                console.log = originalConsoleLog;
+                
+                feedback.className = 'feedback success';
+                feedback.innerHTML = `<strong><i class="fas fa-check-circle"></i> Output:</strong><pre>${output || 'No output'}</pre>`;
+            } catch (e) {
+                feedback.className = 'feedback error';
+                feedback.innerHTML = `<strong><i class="fas fa-exclamation-circle"></i> Error:</strong> ${e.message}`;
+            }
+        }
+
+        // Submit the code for evaluation
+        function submitCode() {
+            const code = document.getElementById('code-input').value;
+            const feedback = document.getElementById('feedback');
+            const module = pythonModules[currentModule];
+            
+            if (module.challenge.test(code)) {
+                feedback.className = 'feedback success';
+                feedback.innerHTML = '<strong><i class="fas fa-trophy"></i> Success!</strong> Your code passed all tests.';
+                
+                // Update XP and level
+                xp += 20;
+                if (xp >= 100) {
+                    level++;
+                    xp = xp - 100;
+                    
+                    const speechBubble = document.getElementById('speech-bubble');
+                    speechBubble.textContent = `Level up! You're now level ${level}!`;
+                }
+                
+                // Mark module as completed if not already
+                if (!completedModules.includes(module.id)) {
+                    completedModules.push(module.id);
+                    localStorage.setItem('pythonCompletedModules', JSON.stringify(completedModules));
+                    updateProgress();
+                }
+                
+                // Update stats
+                updateStats();
+                
+                // Show random encouragement message
+                const speechBubble = document.getElementById('speech-bubble');
+                speechBubble.textContent = characterMessages[Math.floor(Math.random() * characterMessages.length)];
+                
+                // Move to next module after a delay if not the last one
+                if (currentModule < pythonModules.length - 1) {
+                    setTimeout(() => showModule(currentModule + 1), 2000);
+                }
+            } else {
+                feedback.className = 'feedback error';
+                feedback.innerHTML = '<strong><i class="fas fa-exclamation-triangle"></i> Try again!</strong> Your code did not pass the tests.';
+                
+                const speechBubble = document.getElementById('speech-bubble');
+                speechBubble.textContent = "Don't give up! Try again. You can do it!";
+            }
+        }
+
+        // Show a hint for the current challenge
+        function showHint() {
+            const feedback = document.getElementById('feedback');
+            const module = pythonModules[currentModule];
+            
+            feedback.className = 'feedback';
+            feedback.innerHTML = `<strong><i class="fas fa-lightbulb"></i> Hint:</strong> ${module.challenge.hint}`;
+            
+            const speechBubble = document.getElementById('speech-bubble');
+            speechBubble.textContent = "Here's a hint to help you out!";
+        }
+
+        // Update progress bar and text
+        function updateProgress() {
+            const progress = (completedModules.length / pythonModules.length) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `Completed: ${Math.round(progress)}%`;
+        }
+
+        // Update stats display
+        function updateStats() {
+            document.getElementById('level').textContent = level;
+            document.getElementById('xp').textContent = xp;
+            document.getElementById('completed').textContent = completedModules.length;
+        }
+
+        // Initialize the game when the page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #1a1a2e, #16213e);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: #4cc9f0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a, .nav-links select {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #4cc9f0;
+        }
+
+        .nav-links select {
+            background: linear-gradient(to right, #4cc9f0, #4895ef);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 30px;
+        }
+
+        .puzzle-container {
+            text-align: center;
+            max-width: 90vw;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        #puzzle-board {
+            display: grid;
+            width: 80vw;
+            max-width: 400px;
+            aspect-ratio: 1/1;
+            margin: 0 auto;
+            border: 3px solid #4cc9f0;
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(76, 201, 240, 0.4);
+            background: #2a2a3a;
+        }
+
+        .tile {
+            background: linear-gradient(to right, #4cc9f0, #4895ef);
+            border: 1px solid #2d2d3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .tile.empty {
+            background: #1e1e2e;
+            border: none;
+            cursor: default;
+        }
+
+        .tile:hover:not(.empty) {
+            transform: scale(1.05);
+        }
+
+        .puzzle-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .puzzle-controls button {
+            background: linear-gradient(to right, #4cc9f0, #4895ef);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .puzzle-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.4);
+        }
+
+        .puzzle-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            background: rgba(30, 30, 46, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            color: #f72585;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #1e1e2e;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #4cc9f0;
+        }
+
+        .close-modal {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        #high-scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        #high-scores-table th, #high-scores-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #2d2d3d;
+        }
+
+        #high-scores-table th {
+            color: #4cc9f0;
+        }
+
+        @media (max-width: 576px) {
+            .tile {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{% url 'dashboard' %}" class="logo">GameHub</a>
+            <div class="nav-links">
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="#" id="view-scores">High Scores</a>
+                <select id="difficulty">
+                    <option value="3">3x3 (Easy)</option>
+                    <option value="4">4x4 (Medium)</option>
+                    <option value="5">5x5 (Hard)</option>
+                </select>
+                <a href="{% url 'logout' %}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="puzzle-container">
+        <h1>Sliding Puzzle</h1>
+        <div id="puzzle-board"></div>
+
+        <div class="puzzle-stats">
+            <div class="stat-box">
+                <div class="stat-label">Current Level</div>
+                <div class="stat-value" id="current-level">3x3</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Moves</div>
+                <div class="stat-value" id="move-count">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Time</div>
+                <div class="stat-value" id="time-elapsed">0s</div>
+            </div>
+        </div>
+
+        <div class="puzzle-controls">
+            <button id="new-game">New Game</button>
+        </div>
+    </div>
+
+    <div class="modal" id="scores-modal">
+        <div class="modal-content">
+            <span class="close-modal">×</span>
+            <h2>Puzzle High Scores</h2>
+            <table id="high-scores-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                        <th>Level</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="scores-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        const gameState = {
+            size: 3,
+            tiles: [],
+            emptyIndex: 0,
+            moveCount: 0,
+            timeElapsed: 0,
+            timerInterval: null,
+            gameWon: false,
+            scores: JSON.parse(localStorage.getItem('puzzleHighScores')) || []
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGame();
+            setupEventListeners();
+            updateStatsDisplay();
+        });
+
+        function initializeGame() {
+            gameState.size = parseInt($('#difficulty').val());
+            gameState.tiles = Array.from({ length: gameState.size * gameState.size }, (_, i) => i + 1);
+            gameState.tiles[gameState.tiles.length - 1] = 0; // Empty tile
+            gameState.emptyIndex = gameState.tiles.length - 1;
+            gameState.moveCount = 0;
+            gameState.timeElapsed = 0;
+            gameState.gameWon = false;
+            stopTimer();
+            startTimer();
+            shuffleTiles();
+            renderBoard();
+        }
+
+        function setupEventListeners() {
+            $('#new-game').click(startNewGame);
+            $('#difficulty').change(function () {
+                gameState.size = parseInt($(this).val());
+                $('#current-level').text(`${gameState.size}x${gameState.size}`);
+                startNewGame();
+            });
+            $('#view-scores').click(showHighScores);
+            $('.close-modal').click(hideHighScores);
+            $('#puzzle-board').on('click', '.tile', handleTileClick);
+        }
+
+        function startNewGame() {
+            initializeGame();
+            updateStatsDisplay();
+        }
+
+        function shuffleTiles() {
+            for (let i = 0; i < 1000; i++) {
+                const neighbors = getValidMoves(gameState.emptyIndex);
+                const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                swapTiles(gameState.emptyIndex, randomNeighbor);
+                gameState.emptyIndex = randomNeighbor;
+            }
+        }
+
+        function renderBoard() {
+            const board = $('#puzzle-board');
+            board.empty();
+            board.css('grid-template-columns', `repeat(${gameState.size}, 1fr)`);
+            gameState.tiles.forEach((tile, index) => {
+                const tileElement = $('<div>').addClass('tile');
+                if (tile === 0) {
+                    tileElement.addClass('empty');
+                } else {
+                    tileElement.text(tile);
+                }
+                tileElement.data('index', index);
+                board.append(tileElement);
+            });
+        }
+
+        function handleTileClick() {
+            if (gameState.gameWon) return;
+            const index = $(this).data('index');
+            if (isValidMove(index)) {
+                swapTiles(gameState.emptyIndex, index);
+                gameState.emptyIndex = index;
+                gameState.moveCount++;
+                renderBoard();
+                updateStatsDisplay();
+                if (isPuzzleSolved()) {
+                    handleWin();
+                }
+            }
+        }
+
+        function isValidMove(index) {
+            const row = Math.floor(index / gameState.size);
+            const col = index % gameState.size;
+            const emptyRow = Math.floor(gameState.emptyIndex / gameState.size);
+            const emptyCol = gameState.emptyIndex % gameState.size;
+            return (Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
+                   (Math.abs(col - emptyCol) === 1 && row === emptyRow);
+        }
+
+        function getValidMoves(emptyIndex) {
+            const row = Math.floor(emptyIndex / gameState.size);
+            const col = emptyIndex % gameState.size;
+            const neighbors = [];
+            if (row > 0) neighbors.push(emptyIndex - gameState.size); // Up
+            if (row < gameState.size - 1) neighbors.push(emptyIndex + gameState.size); // Down
+            if (col > 0) neighbors.push(emptyIndex - 1); // Left
+            if (col < gameState.size - 1) neighbors.push(emptyIndex + 1); // Right
+            return neighbors;
+        }
+
+        function swapTiles(i, j) {
+            [gameState.tiles[i], gameState.tiles[j]] = [gameState.tiles[j], gameState.tiles[i]];
+        }
+
+        function isPuzzleSolved() {
+            for (let i = 0; i < gameState.tiles.length - 1; i++) {
+                if (gameState.tiles[i] !== i + 1) return false;
+            }
+            return gameState.tiles[gameState.tiles.length - 1] === 0;
+        }
+
+        function startTimer() {
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeElapsed++;
+                updateStatsDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+        }
+
+        function handleWin() {
+            gameState.gameWon = true;
+            stopTimer();
+            const score = calculateScore();
+            addHighScore(score);
+            updateStorage();
+            updateStatsDisplay();
+            alert(`Congratulations! You solved the puzzle in ${gameState.moveCount} moves and ${gameState.timeElapsed} seconds! Score: ${score}`);
+        }
+
+        function calculateScore() {
+            const base = 1000;
+            const movePenalty = gameState.moveCount * 10;
+            const timePenalty = gameState.timeElapsed * 5;
+            const multiplier = { 3: 1, 4: 2, 5: 3 };
+            return Math.max(0, (base - movePenalty - timePenalty) * multiplier[gameState.size]);
+        }
+
+        function addHighScore(score) {
+            const newScore = {
+                player: '{{ request.user.username|default:"Guest" }}',
+                score: score,
+                level: `${gameState.size}x${gameState.size}`,
+                date: new Date().toLocaleDateString()
+            };
+            gameState.scores.push(newScore);
+            gameState.scores.sort((a, b) => b.score - a.score);
+            gameState.scores = gameState.scores.slice(0, 10);
+        }
+
+        function updateStorage() {
+            localStorage.setItem('puzzleHighScores', JSON.stringify(gameState.scores));
+        }
+
+        function updateStatsDisplay() {
+            $('#move-count').text(gameState.moveCount);
+            $('#time-elapsed').text(`${gameState.timeElapsed}s`);
+            $('#current-level').text(`${gameState.size}x${gameState.size}`);
+        }
+
+        function showHighScores() {
+            const body = $('#scores-body');
+            body.empty();
+            gameState.scores.forEach((s, i) => {
+                body.append(`
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${s.player}</td>
+                        <td>${s.score}</td>
+                        <td>${s.level}</td>
+                        <td>${s.date}</td>
+                    </tr>
+                `);
+            });
+            $('#scores-modal').css('display', 'flex');
+        }
+
+        function hideHighScores() {
+            $('#scores-modal').css('display', 'none');
+        }
+
+        startNewGame();
+    </script>
+</body>
+</html>

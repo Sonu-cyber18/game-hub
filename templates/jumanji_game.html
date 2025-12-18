@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumanji Jungle Adventure</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a3a1a;
+            color: #f0e6d2;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #d4af37;
+            text-shadow: 2px 2px 4px #000;
+        }
+        
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #2a522a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .setup-screen {
+            margin: 20px 0;
+        }
+        
+        .setup-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .setup-option {
+            background-color: #3d6b3d;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .setup-option:hover {
+            transform: scale(1.05);
+            background-color: #4d7b4d;
+        }
+        
+        .setup-option.selected {
+            background-color: #5a3d28;
+            border: 2px solid #d4af37;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 5px;
+            margin: 20px auto;
+            width: 400px;
+            height: 400px;
+        }
+        
+        .tile {
+            background-color: #3d6b3d;
+            border: 2px solid #5a3d28;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .tile:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .player-1 {
+            background-color: #d4af37;
+            color: #000;
+        }
+        
+        .player-2 {
+            background-color: #4682b4;
+            color: #fff;
+        }
+        
+        .player-3 {
+            background-color: #8b0000;
+            color: #fff;
+        }
+        
+        .player-4 {
+            background-color: #006400;
+            color: #fff;
+        }
+        
+        .computer {
+            background-color: #4b0082;
+            color: #fff;
+        }
+        
+        .animal {
+            background-color: #8b0000;
+        }
+        
+        .quicksand {
+            background-color: #cd853f;
+        }
+        
+        .treasure {
+            background-color: #ffd700;
+            color: #000;
+        }
+        
+        .riddle {
+            background-color: #4682b4;
+        }
+        
+        .jumanji-stone {
+            background-color: #4b0082;
+            color: #fff;
+        }
+        
+        .start {
+            background-color: #006400;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #5a3d28;
+            color: #f0e6d2;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #8b5a2b;
+        }
+        
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 20px 0;
+            background-color: #3d6b3d;
+            padding: 10px;
+            border-radius: 5px;
+            gap: 10px;
+        }
+        
+        .player-stats {
+            display: flex;
+            flex-direction: column;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        .player-1-stats {
+            background-color: rgba(212, 175, 55, 0.2);
+            border: 1px solid #d4af37;
+        }
+        
+        .player-2-stats {
+            background-color: rgba(70, 130, 180, 0.2);
+            border: 1px solid #4682b4;
+        }
+        
+        .player-3-stats {
+            background-color: rgba(139, 0, 0, 0.2);
+            border: 1px solid #8b0000;
+        }
+        
+        .player-4-stats {
+            background-color: rgba(0, 100, 0, 0.2);
+            border: 1px solid #006400;
+        }
+        
+        .computer-stats {
+            background-color: rgba(75, 0, 130, 0.2);
+            border: 1px solid #4b0082;
+        }
+        
+        .current-player {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .player-1-stat {
+            color: #d4af37;
+        }
+        
+        .player-2-stat {
+            color: #4682b4;
+        }
+        
+        .player-3-stat {
+            color: #8b0000;
+        }
+        
+        .player-4-stat {
+            color: #006400;
+        }
+        
+        .computer-stat {
+            color: #4b0082;
+        }
+        
+        .message-box {
+            background-color: #1a3a1a;
+            border: 2px solid #5a3d28;
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 60px;
+            margin: 20px 0;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 100px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #2a522a;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 80%;
+            text-align: center;
+        }
+        
+        .modal h2 {
+            color: #d4af37;
+        }
+        
+        .riddle-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .riddle-option {
+            background-color: #3d6b3d;
+            border: none;
+            color: #f0e6d2;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .riddle-option:hover {
+            background-color: #4d7b4d;
+        }
+        
+        .level-indicator {
+            margin: 10px 0;
+            font-size: 18px;
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar" style="background: linear-gradient(90deg, #2a522a, #1a3a1a); padding: 1rem 2rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid #d4af37;">
+        <div class="navbar-container" style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <a href="{% url 'home' %}" class="logo" style="color: #d4af37; font-size: 1.5rem; font-weight: 700; text-decoration: none; text-shadow: 1px 1px 2px #000;">GameHub</a>
+            <div class="nav-links" style="display: flex; gap: 1.5rem;">
+                <a href="{% url 'dashboard' %}" style="color: #f0e6d2; text-decoration: none; font-weight: 500; transition: color 0.3s; text-shadow: 1px 1px 2px #000;">Dashboard</a>
+                <a href="{% url 'profile' %}" style="color: #f0e6d2; text-decoration: none; font-weight: 500; transition: color 0.3s; text-shadow: 1px 1px 2px #000;">Profile</a>
+                <a href="{% url 'logout' %}" style="color: #f0e6d2; text-decoration: none; font-weight: 500; transition: color 0.3s; text-shadow: 1px 1px 2px #000;">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <div class="game-container">
+        <h1>Jumanji Jungle Adventure</h1>
+        
+        <div class="setup-screen" id="setup-screen">
+            <h2>Select Game Mode</h2>
+            <div class="setup-options">
+                <div class="setup-option" onclick="selectMode(1)">
+                    <h3>Single Player</h3>
+                    <p>Play alone against the jungle</p>
+                </div>
+                <div class="setup-option" onclick="selectMode(2)">
+                    <h3>2 Players</h3>
+                    <p>Compete with a friend</p>
+                </div>
+                <div class="setup-option" onclick="selectMode(4)">
+                    <h3>4 Players</h3>
+                    <p>Full party adventure</p>
+                </div>
+                <div class="setup-option" onclick="selectMode('computer')">
+                    <h3>Vs Computer</h3>
+                    <p>Challenge the jungle AI</p>
+                </div>
+            </div>
+            
+            <h2>Select Difficulty</h2>
+            <div class="setup-options">
+                <div class="setup-option" onclick="selectDifficulty('easy')">
+                    <h3>Easy</h3>
+                    <p>Fewer hazards, more treasures</p>
+                </div>
+                <div class="setup-option" onclick="selectDifficulty('medium')">
+                    <h3>Medium</h3>
+                    <p>Balanced challenge</p>
+                </div>
+                <div class="setup-option" onclick="selectDifficulty('hard')">
+                    <h3>Hard</h3>
+                    <p>Dangerous jungle with complex riddles</p>
+                </div>
+            </div>
+            
+            <button onclick="startGame()">Start Adventure</button>
+        </div>
+        
+        <div id="game-screen" style="display: none;">
+            <div class="level-indicator">
+                Level: <span id="level-display">1</span> - 
+                Difficulty: <span id="difficulty-display">Medium</span>
+            </div>
+            
+            <div class="stats" id="stats-container">
+                <!-- Player stats will be added here dynamically -->
+            </div>
+            
+            <div class="board" id="board"></div>
+            
+            <div class="controls">
+                <button id="roll-btn">Roll Dice</button>
+                <button id="reset-btn">Reset Game</button>
+                <button id="next-level-btn" style="display: none;">Next Level</button>
+            </div>
+            
+            <div class="message-box" id="message-box">
+                <p>Welcome to Jumanji Jungle Adventure!</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="riddle-modal">
+        <div class="modal-content">
+            <h2>Riddle Challenge!</h2>
+            <p id="riddle-question"></p>
+            <div class="riddle-options" id="riddle-options"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Game configuration
+        const config = {
+            players: 1,
+            difficulty: 'medium',
+            level: 1,
+            selectedMode: null,
+            selectedDifficulty: null
+        };
+        
+        // Game state
+        const gameState = {
+            players: [],
+            currentPlayerIndex: 0,
+            diceRoll: 0,
+            isMoving: false,
+            skipTurn: false,
+            boardSize: 6,
+            specialTiles: {
+                animals: [],
+                quicksand: [],
+                treasure: [],
+                riddles: []
+            },
+            gameActive: false
+        };
+        
+        // Riddles by difficulty level
+        const riddles = {
+            easy: [
+                {
+                    question: "I'm tall when I'm young and short when I'm old. What am I?",
+                    options: ["A tree", "A candle", "A river", "A mountain"],
+                    answer: 1
+                },
+                {
+                    question: "What has keys but can't open locks?",
+                    options: ["A door", "A keyboard", "A treasure chest", "A map"],
+                    answer: 1
+                }
+            ],
+            medium: [
+                {
+                    question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?",
+                    options: ["A tree", "An echo", "A river", "A shadow"],
+                    answer: 1
+                },
+                {
+                    question: "The more you take, the more you leave behind. What am I?",
+                    options: ["Footsteps", "Memories", "Treasure", "Time"],
+                    answer: 0
+                }
+            ],
+            hard: [
+                {
+                    question: "What can run but never walks, has a mouth but never talks, has a head but never weeps, has a bed but never sleeps?",
+                    options: ["A snake", "A river", "The wind", "A clock"],
+                    answer: 1
+                },
+                {
+                    question: "I'm light as a feather, yet the strongest man can't hold me for much more than a minute. What am I?",
+                    options: ["Breath", "A shadow", "A thought", "A bubble"],
+                    answer: 0
+                }
+            ]
+        };
+        
+        // Initialize the game setup
+        function initSetup() {
+            document.querySelectorAll('.setup-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.setup-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        }
+        
+        // Select game mode
+        function selectMode(mode) {
+            config.selectedMode = mode;
+            if (mode === 'computer') {
+                config.players = 2; // Player vs computer
+            } else {
+                config.players = mode;
+            }
+        }
+        
+        // Select difficulty
+        function selectDifficulty(difficulty) {
+            config.selectedDifficulty = difficulty;
+            config.difficulty = difficulty;
+        }
+        
+        // Start the game
+        function startGame() {
+            if (!config.selectedMode || !config.selectedDifficulty) {
+                alert('Please select both a game mode and difficulty');
+                return;
+            }
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('difficulty-display').textContent = config.difficulty.charAt(0).toUpperCase() + config.difficulty.slice(1);
+            document.getElementById('level-display').textContent = config.level;
+            
+            initializeGame();
+        }
+        
+        // Initialize the game
+        function initializeGame() {
+            createPlayers();
+            createBoard();
+            placeSpecialTiles();
+            updateStats();
+            
+            document.getElementById('roll-btn').addEventListener('click', rollDice);
+            document.getElementById('reset-btn').addEventListener('click', resetGame);
+            document.getElementById('next-level-btn').addEventListener('click', nextLevel);
+            
+            gameState.gameActive = true;
+            addMessage(`Game started! ${config.players} player${config.players > 1 ? 's' : ''} competing in ${config.difficulty} mode.`);
+            addMessage(`${gameState.players[0].name}'s turn first.`);
+        }
+        
+        // Create players based on selected mode
+        function createPlayers() {
+            gameState.players = [];
+            
+            // Human players
+            for (let i = 0; i < config.players; i++) {
+                if (config.selectedMode === 'computer' && i === 1) {
+                    gameState.players.push({
+                        id: i + 1,
+                        name: 'Jungle AI',
+                        type: 'computer',
+                        position: { row: 5, col: 0 },
+                        lives: 3,
+                        score: 0,
+                        skipTurn: false
+                    });
+                } else {
+                    gameState.players.push({
+                        id: i + 1,
+                        name: `Player ${i + 1}`,
+                        type: 'human',
+                        position: { row: 5, col: 0 },
+                        lives: 3,
+                        score: 0,
+                        skipTurn: false
+                    });
+                }
+            }
+            
+            gameState.currentPlayerIndex = 0;
+        }
+        
+        // Create the game board
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            
+            for (let row = 0; row < gameState.boardSize; row++) {
+                for (let col = 0; col < gameState.boardSize; col++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.id = `tile-${row}-${col}`;
+                    
+                    // Mark start and end positions
+                    if (row === 5 && col === 0) {
+                        tile.classList.add('start');
+                        tile.textContent = 'Start';
+                    } else if (row === 0 && col === 5) {
+                        tile.classList.add('jumanji-stone');
+                        tile.textContent = 'Jumanji Stone';
+                    }
+                    
+                    board.appendChild(tile);
+                }
+            }
+            
+            updatePlayerPositions();
+        }
+        
+        // Place special tiles randomly on the board based on difficulty
+        function placeSpecialTiles() {
+            // Clear previous special tiles
+            gameState.specialTiles = {
+                animals: [],
+                quicksand: [],
+                treasure: [],
+                riddles: []
+            };
+            
+            // Difficulty settings
+            const difficultySettings = {
+                easy: { animalChance: 0.1, quicksandChance: 0.1, treasureChance: 0.2, riddleChance: 0.1 },
+                medium: { animalChance: 0.15, quicksandChance: 0.15, treasureChance: 0.15, riddleChance: 0.15 },
+                hard: { animalChance: 0.2, quicksandChance: 0.2, treasureChance: 0.1, riddleChance: 0.2 }
+            };
+            
+            const settings = difficultySettings[config.difficulty];
+            
+            // Generate positions for special tiles
+            for (let row = 0; row < gameState.boardSize; row++) {
+                for (let col = 0; col < gameState.boardSize; col++) {
+                    // Skip start and end positions
+                    if (!(row === 5 && col === 0) && !(row === 0 && col === 5)) {
+                        const tile = document.getElementById(`tile-${row}-${col}`);
+                        const rand = Math.random();
+                        
+                        if (rand < settings.animalChance) {
+                            gameState.specialTiles.animals.push({ row, col });
+                            tile.classList.add('animal');
+                            tile.textContent = '🐅';
+                        } else if (rand < settings.animalChance + settings.quicksandChance) {
+                            gameState.specialTiles.quicksand.push({ row, col });
+                            tile.classList.add('quicksand');
+                            tile.textContent = '🌀';
+                        } else if (rand < settings.animalChance + settings.quicksandChance + settings.treasureChance) {
+                            gameState.specialTiles.treasure.push({ row, col });
+                            tile.classList.add('treasure');
+                            tile.textContent = '💎';
+                        } else if (rand < settings.animalChance + settings.quicksandChance + settings.treasureChance + settings.riddleChance) {
+                            gameState.specialTiles.riddles.push({ row, col });
+                            tile.classList.add('riddle');
+                            tile.textContent = '❓';
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Roll the dice
+        function rollDice() {
+            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+            
+            if (gameState.isMoving || currentPlayer.skipTurn) return;
+            
+            gameState.diceRoll = Math.floor(Math.random() * 6) + 1;
+            gameState.isMoving = true;
+            
+            addMessage(`${currentPlayer.name} rolled a ${gameState.diceRoll}!`);
+            updateStats();
+            
+            if (currentPlayer.type === 'computer') {
+                computerMove(currentPlayer);
+            } else {
+                movePlayer(currentPlayer, gameState.diceRoll);
+            }
+        }
+        
+        // Computer player logic
+        function computerMove(player) {
+            // Simple AI - just move forward
+            setTimeout(() => {
+                movePlayer(player, gameState.diceRoll);
+            }, 1000);
+        }
+        
+        // Move the player
+        function movePlayer(player, moves) {
+            if (moves <= 0) {
+                gameState.isMoving = false;
+                
+                // Check if player landed on a special tile
+                checkSpecialTile(player);
+                
+                // Check if player reached the end
+                if (player.position.row === 0 && player.position.col === 5) {
+                    playerWins(player);
+                    return;
+                }
+                
+                // Move to next player
+                nextPlayer();
+                return;
+            }
+            
+            // Determine next position (move right, then up)
+            let nextRow = player.position.row;
+            let nextCol = player.position.col;
+            
+            if (nextCol < gameState.boardSize - 1) {
+                // Move right if possible
+                nextCol++;
+            } else if (nextRow > 0) {
+                // Move up if at right edge
+                nextRow--;
+                nextCol = 0;
+            } else {
+                // Already at the end
+                playerWins(player);
+                return;
+            }
+            
+            // Update position
+            player.position = { row: nextRow, col: nextCol };
+            
+            updatePlayerPositions();
+            updateStats();
+            
+            // Continue moving with remaining moves
+            setTimeout(() => {
+                movePlayer(player, moves - 1);
+            }, 500);
+        }
+        
+        // Update all player positions on the board
+        function updatePlayerPositions() {
+            // Clear all players from tiles
+            document.querySelectorAll('.tile').forEach(tile => {
+                tile.classList.remove('player-1', 'player-2', 'player-3', 'player-4', 'computer');
+            });
+            
+            // Add players to their current positions
+            gameState.players.forEach(player => {
+                if (player.lives > 0) { // Only show alive players
+                    const tile = document.getElementById(`tile-${player.position.row}-${player.position.col}`);
+                    if (tile) {
+                        if (player.type === 'computer') {
+                            tile.classList.add('computer');
+                        } else {
+                            tile.classList.add(`player-${player.id}`);
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Check if player landed on a special tile
+        function checkSpecialTile(player) {
+            const { row, col } = player.position;
+            
+            // Skip start and end positions
+            if ((row === 5 && col === 0) || (row === 0 && col === 5)) return;
+            
+            // Check animal tiles
+            if (gameState.specialTiles.animals.some(pos => pos.row === row && pos.col === col)) {
+                player.lives--;
+                addMessage(`Oh no! ${player.name} encountered a wild animal and lost a life!`);
+                
+                if (player.lives <= 0) {
+                    addMessage(`${player.name} has been eliminated from the game!`);
+                    checkGameOver();
+                }
+            }
+            // Check quicksand tiles
+            else if (gameState.specialTiles.quicksand.some(pos => pos.row === row && pos.col === col)) {
+                player.skipTurn = true;
+                addMessage(`${player.name} is stuck in quicksand! They'll skip their next turn.`);
+            }
+            // Check treasure tiles
+            else if (gameState.specialTiles.treasure.some(pos => pos.row === row && pos.col === col)) {
+                const points = Math.floor(Math.random() * 20) + 10;
+                player.score += points;
+                addMessage(`${player.name} found treasure! +${points} points!`);
+            }
+            // Check riddle tiles
+            else if (gameState.specialTiles.riddles.some(pos => pos.row === row && pos.col === col)) {
+                if (player.type === 'computer') {
+                    // Computer has a 50% chance to answer correctly
+                    const correct = Math.random() > 0.5;
+                    if (correct) {
+                        addMessage(`${player.name} solved the riddle correctly!`);
+                    } else {
+                        player.lives--;
+                        addMessage(`${player.name} answered the riddle wrong and lost a life!`);
+                        if (player.lives <= 0) {
+                            addMessage(`${player.name} has been eliminated from the game!`);
+                            checkGameOver();
+                        }
+                    }
+                } else {
+                    showRiddle(player);
+                    return; // Don't proceed to next player until riddle is answered
+                }
+            }
+            
+            updateStats();
+        }
+        
+        // Show a riddle modal
+        function showRiddle(player) {
+            const riddleSet = riddles[config.difficulty];
+            const riddle = riddleSet[Math.floor(Math.random() * riddleSet.length)];
+            const modal = document.getElementById('riddle-modal');
+            const questionEl = document.getElementById('riddle-question');
+            const optionsEl = document.getElementById('riddle-options');
+            
+            questionEl.textContent = riddle.question;
+            optionsEl.innerHTML = '';
+            
+            riddle.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'riddle-option';
+                button.textContent = option;
+                button.addEventListener('click', () => {
+                    if (index === riddle.answer) {
+                        addMessage(`Correct! ${player.name} solved the riddle and may proceed.`);
+                    } else {
+                        player.lives--;
+                        addMessage(`Wrong answer! ${player.name} lost a life.`);
+                        if (player.lives <= 0) {
+                            addMessage(`${player.name} has been eliminated from the game!`);
+                        }
+                    }
+                    modal.style.display = 'none';
+                    updateStats();
+                    checkGameOver();
+                    nextPlayer();
+                });
+                optionsEl.appendChild(button);
+            });
+            
+            modal.style.display = 'flex';
+        }
+        
+        // Move to next player
+        function nextPlayer() {
+            if (!gameState.gameActive) return;
+            
+            let nextIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+            let attempts = 0;
+            
+            // Find next active player (with lives remaining)
+            while (attempts < gameState.players.length) {
+                if (gameState.players[nextIndex].lives > 0) {
+                    break;
+                }
+                nextIndex = (nextIndex + 1) % gameState.players.length;
+                attempts++;
+            }
+            
+            // If all players are eliminated
+            if (attempts >= gameState.players.length) {
+                addMessage("All players have been eliminated! Game over.");
+                gameState.gameActive = false;
+                document.getElementById('roll-btn').disabled = true;
+                return;
+            }
+            
+            gameState.currentPlayerIndex = nextIndex;
+            const nextPlayer = gameState.players[nextIndex];
+            
+            // Clear skip turn flag if set
+            if (nextPlayer.skipTurn) {
+                addMessage(`${nextPlayer.name} is free from quicksand and can play again.`);
+                nextPlayer.skipTurn = false;
+            }
+            
+            addMessage(`${nextPlayer.name}'s turn now.`);
+            updateStats();
+            
+            // If next player is computer, trigger their move automatically
+            if (nextPlayer.type === 'computer') {
+                setTimeout(() => {
+                    rollDice();
+                }, 1500);
+            }
+        }
+        
+        // Player wins the level
+        function playerWins(player) {
+            player.score += 50 * config.level;
+            addMessage(`Congratulations! ${player.name} has reached the Jumanji Stone and wins this level! +${50 * config.level} points!`);
+            
+            // Check if this was the final level
+            if (config.level >= 3) {
+                addMessage(`Game completed! Final scores:`);
+                gameState.players.forEach(p => {
+                    addMessage(`${p.name}: ${p.score} points`);
+                });
+                gameState.gameActive = false;
+                document.getElementById('roll-btn').disabled = true;
+                document.getElementById('next-level-btn').style.display = 'none';
+            } else {
+                document.getElementById('next-level-btn').style.display = 'inline-block';
+                document.getElementById('roll-btn').disabled = true;
+            }
+            
+            updateStats();
+        }
+        
+        // Check if game should end (all players eliminated)
+        function checkGameOver() {
+            const activePlayers = gameState.players.filter(p => p.lives > 0);
+            if (activePlayers.length === 0) {
+                addMessage("Game over! All players have been eliminated.");
+                gameState.gameActive = false;
+                document.getElementById('roll-btn').disabled = true;
+                document.getElementById('next-level-btn').style.display = 'none';
+            }
+        }
+        
+        // Advance to next level
+        function nextLevel() {
+            config.level++;
+            document.getElementById('level-display').textContent = config.level;
+            document.getElementById('next-level-btn').style.display = 'none';
+            
+            // Reset player positions but keep scores and lives
+            gameState.players.forEach(player => {
+                player.position = { row: 5, col: 0 };
+                player.skipTurn = false;
+            });
+            
+            gameState.currentPlayerIndex = 0;
+            
+            // Increase difficulty slightly
+            if (config.difficulty === 'easy' && config.level > 1) {
+                config.difficulty = 'medium';
+                document.getElementById('difficulty-display').textContent = 'Medium';
+            } else if (config.difficulty === 'medium' && config.level > 2) {
+                config.difficulty = 'hard';
+                document.getElementById('difficulty-display').textContent = 'Hard';
+            }
+            
+            createBoard();
+            placeSpecialTiles();
+            updateStats();
+            
+            addMessage(`Level ${config.level} begins! Difficulty increased.`);
+            addMessage(`${gameState.players[0].name}'s turn first.`);
+            
+            document.getElementById('roll-btn').disabled = false;
+            gameState.gameActive = true;
+        }
+        
+        // Reset the game
+        function resetGame() {
+            config.level = 1;
+            document.getElementById('level-display').textContent = config.level;
+            document.getElementById('difficulty-display').textContent = config.difficulty.charAt(0).toUpperCase() + config.difficulty.slice(1);
+            document.getElementById('next-level-btn').style.display = 'none';
+            
+            initializeGame();
+        }
+        
+        // Update game statistics display
+        function updateStats() {
+            const statsContainer = document.getElementById('stats-container');
+            statsContainer.innerHTML = '';
+            
+            gameState.players.forEach((player, index) => {
+                if (player.lives > 0) {
+                    const playerStats = document.createElement('div');
+                    playerStats.className = `player-stats ${player.type === 'computer' ? 'computer-stats' : `player-${player.id}-stats`} ${index === gameState.currentPlayerIndex ? 'current-player' : ''}`;
+                    
+                    playerStats.innerHTML = `
+                        <h3>${player.name}</h3>
+                        <div class="stat">
+                            <span>Lives</span>
+                            <span class="stat-value ${player.type === 'computer' ? 'computer-stat' : `player-${player.id}-stat`}">${player.lives}</span>
+                        </div>
+                        <div class="stat">
+                            <span>Score</span>
+                            <span class="stat-value ${player.type === 'computer' ? 'computer-stat' : `player-${player.id}-stat`}">${player.score}</span>
+                        </div>
+                        <div class="stat">
+                            <span>Position</span>
+                            <span class="stat-value ${player.type === 'computer' ? 'computer-stat' : `player-${player.id}-stat`}">${gameState.boardSize - player.position.row},${player.position.col + 1}</span>
+                        </div>
+                    `;
+                    
+                    statsContainer.appendChild(playerStats);
+                }
+            });
+            
+            const rollBtn = document.getElementById('roll-btn');
+            const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+            
+            if (currentPlayer) {
+                rollBtn.disabled = gameState.isMoving || currentPlayer.skipTurn || !gameState.gameActive;
+            }
+        }
+        
+        // Add a message to the message box
+        function addMessage(text) {
+            const messageBox = document.getElementById('message-box');
+            const message = document.createElement('p');
+            message.textContent = text;
+            messageBox.insertBefore(message, messageBox.firstChild);
+            
+            // Limit the number of messages
+            if (messageBox.children.length > 5) {
+                messageBox.removeChild(messageBox.lastChild);
+            }
+        }
+        
+        // Initialize the game when the page loads
+        window.onload = initSetup;
+    </script>
+</body>
+</html>

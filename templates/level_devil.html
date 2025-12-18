@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Devil - Trap Master Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(255, 65, 108, 0.3);
+            margin-bottom: 5px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #7fdbda;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .game-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            background-color: #0f3460;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid #2d4059;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .ui-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: rgba(15, 52, 96, 0.8);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border: 2px solid #2d4059;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .stat-box {
+            background: rgba(45, 64, 89, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #3a506b;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-3px);
+            background: rgba(45, 64, 89, 0.9);
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #7fdbda;
+            margin-top: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b8d4e3;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            background: rgba(45, 64, 89, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #3a506b;
+        }
+
+        .controls h3 {
+            color: #ff9a76;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .key-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .key {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #2d4059, #1c2d3f);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #111a26;
+            color: #7fdbda;
+            border: 2px solid #3a506b;
+        }
+
+        .key-space {
+            width: 120px;
+        }
+
+        .controls-desc {
+            text-align: center;
+            margin-top: 15px;
+            color: #b8d4e3;
+            font-size: 0.9rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #36d1dc, #5b86e5);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .level-indicator {
+            background: rgba(45, 64, 89, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #3a506b;
+            text-align: center;
+        }
+
+        .level-title {
+            font-size: 1.5rem;
+            color: #ff9a76;
+            margin-bottom: 10px;
+        }
+
+        .level-progress {
+            height: 12px;
+            background-color: #1c2d3f;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .level-progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #36d1dc, #5b86e5);
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .death-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 12px;
+        }
+
+        .death-title {
+            font-size: 3.5rem;
+            color: #ff416c;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 65, 108, 0.7);
+        }
+
+        .death-stats {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .death-message {
+            font-size: 1.2rem;
+            color: #7fdbda;
+            margin-bottom: 25px;
+            max-width: 500px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .difficulty-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .difficulty-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #3a506b;
+        }
+
+        .difficulty-dot.active {
+            background-color: #ff416c;
+        }
+
+        .upgrades {
+            margin-top: 15px;
+        }
+
+        .upgrade-item {
+            background: rgba(45, 64, 89, 0.7);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #3a506b;
+            transition: all 0.3s;
+        }
+
+        .upgrade-item:hover {
+            background: rgba(45, 64, 89, 0.9);
+            transform: translateX(5px);
+        }
+
+        .upgrade-cost {
+            color: #ff9a76;
+            font-weight: bold;
+        }
+
+        .upgrade-btn {
+            background: #36d1dc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            background: #5b86e5;
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .trap-warning {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 65, 108, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            z-index: 5;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .trap-log {
+            background: rgba(45, 64, 89, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #3a506b;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .trap-log h4 {
+            color: #ff9a76;
+            margin-bottom: 10px;
+        }
+
+        .trap-log-item {
+            font-size: 0.85rem;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #b8d4e3;
+        }
+
+        .trap-log-item:last-child {
+            border-bottom: none;
+        }
+
+        .trap-log-item.new {
+            color: #ff9a76;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #b8d4e3;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mobile-btn {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 65, 108, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-btn:active {
+            transform: scale(0.95);
+        }
+
+        .mobile-btn.jump {
+            background: rgba(54, 209, 220, 0.8);
+        }
+
+        @media (max-width: 1100px) {
+            .game-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-container {
+                width: 100%;
+                max-width: 800px;
+                height: 450px;
+            }
+            
+            .ui-panel {
+                width: 100%;
+                max-width: 800px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .game-container {
+                height: 400px;
+            }
+            
+            .mobile-controls {
+                display: flex;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .trap-log {
+                max-height: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-container {
+                height: 350px;
+            }
+            
+            .stat-box {
+                padding: 10px;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            
+            .death-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-fire"></i> LEVEL DEVIL: TRAP EDITION</h1>
+            <p class="tagline">Beware of hidden traps that adapt to your play style!</p>
+        </header>
+        
+        <div class="trap-warning" id="trapWarning"></div>
+        
+        <div class="game-wrapper">
+            <div class="game-container">
+                <canvas id="gameCanvas"></canvas>
+                
+                <div class="death-screen" id="deathScreen">
+                    <h2 class="death-title">TRAPPED!</h2>
+                    <div class="death-stats">
+                        <p>Level: <span id="deathLevel">1</span></p>
+                        <p>Deaths: <span id="deathCount">0</span></p>
+                        <p>Time: <span id="deathTime">0</span>s</p>
+                        <p>Trap Type: <span id="trapType">Unknown</span></p>
+                    </div>
+                    <p class="death-message" id="deathMessage">The devil has claimed another soul. Try again!</p>
+                    <div class="buttons">
+                        <button class="btn btn-primary" id="restartButton">
+                            <i class="fas fa-redo"></i> Restart Level
+                        </button>
+                        <button class="btn btn-secondary" id="continueButton">
+                            <i class="fas fa-play"></i> Continue (Cost: 10 souls)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ui-panel">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Level</div>
+                        <div class="stat-value" id="levelDisplay">1</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Deaths</div>
+                        <div class="stat-value" id="deathsDisplay">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Souls</div>
+                        <div class="stat-value" id="soulsDisplay">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timeDisplay">0s</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Traps Dodged</div>
+                        <div class="stat-value" id="trapsDodgedDisplay">0</div>
+                    </div>
+                </div>
+                
+                <div class="level-indicator">
+                    <div class="level-title" id="levelName">The Beginning</div>
+                    <div class="difficulty-indicator">
+                        <div class="difficulty-dot active"></div>
+                        <div class="difficulty-dot"></div>
+                        <div class="difficulty-dot"></div>
+                        <div class="difficulty-dot"></div>
+                        <div class="difficulty-dot"></div>
+                    </div>
+                    <div class="level-progress">
+                        <div class="level-progress-bar" id="levelProgressBar"></div>
+                    </div>
+                </div>
+                
+                <div class="trap-log">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Trap Log</h4>
+                    <div id="trapLogContent">
+                        <div class="trap-log-item">Game started. Watch for traps!</div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <h3><i class="fas fa-gamepad"></i> Controls</h3>
+                    <div class="key-container">
+                        <div class="key">A</div>
+                        <div class="key">D</div>
+                        <div class="key space key-space">SPACE</div>
+                    </div>
+                    <p class="controls-desc">Move left/right and jump. Beware of hidden traps!</p>
+                </div>
+                
+                <div class="upgrades">
+                    <h3><i class="fas fa-arrow-up"></i> Upgrades</h3>
+                    <div class="upgrade-item">
+                        <div>
+                            <strong>Trap Sense</strong><br>
+                            <small>See trap warnings 0.5s earlier</small>
+                        </div>
+                        <button class="upgrade-btn" id="upgradeTrapSense" data-cost="25">
+                            <span id="trapSenseCost">25</span> Souls
+                        </button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div>
+                            <strong>Spike Immunity</strong><br>
+                            <small>Survive one spike hit per level</small>
+                        </div>
+                        <button class="upgrade-btn" id="upgradeSpikeImmunity" data-cost="40">
+                            <span id="spikeImmunityCost">40</span> Souls
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-primary" id="startButton">
+                        <i class="fas fa-play"></i> Start Game
+                    </button>
+                    <button class="btn btn-secondary" id="resetButton">
+                        <i class="fas fa-undo"></i> Reset Game
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mobile-controls">
+            <button class="mobile-btn left"><i class="fas fa-arrow-left"></i></button>
+            <button class="mobile-btn right"><i class="fas fa-arrow-right"></i></button>
+            <button class="mobile-btn jump"><i class="fas fa-arrow-up"></i></button>
+        </div>
+        
+        <footer>
+            <p>Level Devil Trap Edition - Traps adapt to your play style! | Watch for visual cues and patterns</p>
+            <p>Different trap types require different strategies. Learn and adapt!</p>
+        </footer>
+    </div>
+
+    <script>
+        // Enhanced Game variables with trap logic
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 800;
+        canvas.height = 500;
+
+        // Enhanced game state with trap tracking
+        let gameState = {
+            running: false,
+            level: 1,
+            deaths: 0,
+            souls: 0,
+            trapsDodged: 0,
+            startTime: 0,
+            currentTime: 0,
+            player: null,
+            platforms: [],
+            spikes: [],
+            traps: [], // New: Array for special traps
+            flag: null,
+            levelComplete: false,
+            gameOver: false,
+            trapSenseUnlocked: false,
+            spikeImmunityUnlocked: false,
+            spikeImmunityUsed: false,
+            difficulty: 1,
+            playerBehavior: {
+                avgSpeed: 0,
+                jumpCount: 0,
+                deathLocations: [],
+                commonPaths: []
+            },
+            trapLog: ["Game started. Watch for traps!"]
+        };
+
+        // Enhanced Player class with behavior tracking
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 30;
+                this.height = 40;
+                this.velocityX = 0;
+                this.velocityY = 0;
+                this.grounded = false;
+                this.jumps = 0;
+                this.maxJumps = 1;
+                this.speed = 5;
+                this.color = '#36d1dc';
+                this.trail = [];
+                this.maxTrailLength = 10;
+                this.lastPositions = [];
+                this.maxLastPositions = 60; // Store 1 second of positions at 60fps
+            }
+
+            update() {
+                // Apply gravity
+                this.velocityY += 0.5;
+                
+                // Apply horizontal movement
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+                
+                // Keep player in bounds
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
+                if (this.y > canvas.height) {
+                    playerDie("Fell into the void");
+                    return;
+                }
+                
+                // Track player positions for behavior analysis
+                this.lastPositions.push({x: this.x, y: this.y});
+                if (this.lastPositions.length > this.maxLastPositions) {
+                    this.lastPositions.shift();
+                }
+                
+                // Add position to trail
+                this.trail.push({x: this.x + this.width/2, y: this.y + this.height/2});
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+                
+                // Reset grounded state
+                this.grounded = false;
+                
+                // Track behavior for adaptive traps
+                if (gameState.running) {
+                    // Track average speed
+                    const currentSpeed = Math.abs(this.velocityX) + Math.abs(this.velocityY);
+                    gameState.playerBehavior.avgSpeed = (gameState.playerBehavior.avgSpeed * 0.95) + (currentSpeed * 0.05);
+                }
+            }
+
+            draw() {
+                // Draw trail
+                for (let i = 0; i < this.trail.length; i++) {
+                    const alpha = i / this.trail.length;
+                    ctx.fillStyle = `rgba(54, 209, 220, ${alpha * 0.5})`;
+                    ctx.beginPath();
+                    ctx.arc(this.trail[i].x, this.trail[i].y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Draw player
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Player eyes
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(this.x + 8, this.y + 10, 6, 8);
+                ctx.fillRect(this.x + this.width - 14, this.y + 10, 6, 8);
+                
+                // Player pupils
+                ctx.fillStyle = '#000';
+                const eyeOffset = this.velocityX > 0 ? 2 : (this.velocityX < 0 ? -2 : 0);
+                ctx.fillRect(this.x + 10 + eyeOffset, this.y + 12, 3, 4);
+                ctx.fillRect(this.x + this.width - 12 + eyeOffset, this.y + 12, 3, 4);
+                
+                // Draw spike immunity indicator if active
+                if (gameState.spikeImmunityUnlocked && !gameState.spikeImmunityUsed) {
+                    ctx.strokeStyle = '#7fdbda';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(this.x - 2, this.y - 2, this.width + 4, this.height + 4);
+                }
+            }
+
+            jump() {
+                if (this.jumps < this.maxJumps) {
+                    this.velocityY = -12;
+                    this.jumps++;
+                    this.grounded = false;
+                    
+                    // Track jump behavior
+                    gameState.playerBehavior.jumpCount++;
+                    return true;
+                }
+                return false;
+            }
+
+            move(direction) {
+                // Left: -1, Right: 1, Stop: 0
+                this.velocityX = direction * this.speed;
+            }
+        }
+
+        // Base Trap class for all trap types
+        class Trap {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.active = false;
+                this.triggered = false;
+                this.cooldown = 0;
+                this.warningTime = 1000; // ms warning before activation
+                this.warningStart = 0;
+                this.showingWarning = false;
+                this.color = '#ff9a76';
+            }
+            
+            update() {
+                // Override in subclasses
+            }
+            
+            draw() {
+                // Override in subclasses
+            }
+            
+            checkCollision(player) {
+                // Override in subclasses
+                return false;
+            }
+            
+            activate() {
+                this.active = true;
+                this.showingWarning = false;
+                this.addToLog(`Activated ${this.type} trap`);
+            }
+            
+            showWarning() {
+                if (!this.showingWarning && gameState.trapSenseUnlocked) {
+                    this.warningStart = Date.now();
+                    this.showingWarning = true;
+                    this.addToLog(`Warning: ${this.type} trap detected`);
+                    showTrapWarning(`${this.type.toUpperCase()} TRAP AHEAD!`);
+                }
+            }
+            
+            addToLog(message) {
+                gameState.trapLog.push(message);
+                if (gameState.trapLog.length > 10) gameState.trapLog.shift();
+                updateTrapLog();
+            }
+        }
+
+        // Spike Trap - Classic but with variations
+        class SpikeTrap extends Trap {
+            constructor(x, y, direction = 'up') {
+                super(x, y, 'spike');
+                this.width = 40;
+                this.height = 20;
+                this.direction = direction;
+                this.hidden = Math.random() > 0.7; // 30% chance to be hidden initially
+                this.activationDelay = 500 + Math.random() * 1000; // Random delay
+                this.activationTimer = 0;
+            }
+            
+            update() {
+                if (this.active) return;
+                
+                // Check if player is nearby
+                const player = gameState.player;
+                const distance = Math.sqrt(
+                    Math.pow(player.x + player.width/2 - (this.x + this.width/2), 2) +
+                    Math.pow(player.y + player.height/2 - (this.y + this.height/2), 2)
+                );
+                
+                if (distance < 200 && !this.triggered) {
+                    this.triggered = true;
+                    this.activationTimer = Date.now();
+                    this.showWarning();
+                }
+                
+                // Activate after delay if triggered
+                if (this.triggered && Date.now() - this.activationTimer > this.activationDelay) {
+                    this.activate();
+                }
+            }
+            
+            draw() {
+                if (this.hidden && !this.active && !this.showingWarning) return;
+                
+                // Draw warning effect
+                if (this.showingWarning) {
+                    const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+                    ctx.fillStyle = `rgba(255, 154, 118, ${pulse})`;
+                    ctx.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
+                }
+                
+                // Draw spikes
+                ctx.fillStyle = this.active ? '#ff416c' : '#ff9a76';
+                
+                if (this.direction === 'up') {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + this.width/2, this.y);
+                    ctx.lineTo(this.x, this.y + this.height);
+                    ctx.lineTo(this.x + this.width, this.y + this.height);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (this.direction === 'down') {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + this.width/2, this.y + this.height);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.lineTo(this.x + this.width, this.y);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                // Draw hidden indicator
+                if (this.hidden && !this.active) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.font = '10px Arial';
+                    ctx.fillText('?', this.x + this.width/2 - 3, this.y + this.height/2 + 3);
+                }
+            }
+            
+            checkCollision(player) {
+                if (!this.active) return false;
+                
+                // Simple bounding box collision
+                return player.x < this.x + this.width &&
+                       player.x + player.width > this.x &&
+                       player.y < this.y + this.height &&
+                       player.y + player.height > this.y;
+            }
+        }
+
+        // Crushing Wall Trap - Moves horizontally to crush player
+        class CrushingWallTrap extends Trap {
+            constructor(x, y, direction = 'right') {
+                super(x, y, 'crushing wall');
+                this.width = 20;
+                this.height = 100;
+                this.direction = direction; // 'left' or 'right'
+                this.speed = 3;
+                this.originalX = x;
+                this.originalY = y;
+                this.range = 150;
+                this.returning = false;
+                this.triggerDistance = 100;
+            }
+            
+            update() {
+                const player = gameState.player;
+                const playerCenterX = player.x + player.width/2;
+                const trapCenterX = this.x + this.width/2;
+                
+                // Check if player is in trigger range
+                if (!this.triggered && Math.abs(playerCenterX - trapCenterX) < this.triggerDistance) {
+                    this.triggered = true;
+                    this.showWarning();
+                    setTimeout(() => this.activate(), this.warningTime);
+                }
+                
+                // Move trap if active
+                if (this.active) {
+                    if (!this.returning) {
+                        // Move toward player
+                        if (this.direction === 'right') {
+                            this.x += this.speed;
+                            if (this.x > this.originalX + this.range) this.returning = true;
+                        } else {
+                            this.x -= this.speed;
+                            if (this.x < this.originalX - this.range) this.returning = true;
+                        }
+                    } else {
+                        // Return to original position
+                        if (this.direction === 'right') {
+                            this.x -= this.speed;
+                            if (this.x <= this.originalX) {
+                                this.x = this.originalX;
+                                this.active = false;
+                                this.returning = false;
+                                this.triggered = false;
+                            }
+                        } else {
+                            this.x += this.speed;
+                            if (this.x >= this.originalX) {
+                                this.x = this.originalX;
+                                this.active = false;
+                                this.returning = false;
+                                this.triggered = false;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            draw() {
+                // Draw warning effect
+                if (this.showingWarning) {
+                    const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.7;
+                    ctx.fillStyle = `rgba(255, 65, 108, ${pulse})`;
+                    ctx.fillRect(this.x - 3, this.y - 3, this.width + 6, this.height + 6);
+                }
+                
+                // Draw crushing wall
+                ctx.fillStyle = this.active ? '#ff416c' : '#e74c3c';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Draw crushing pattern
+                ctx.fillStyle = '#c0392b';
+                for (let i = 0; i < this.height; i += 15) {
+                    ctx.fillRect(this.x + 3, this.y + i, this.width - 6, 8);
+                }
+            }
+            
+            checkCollision(player) {
+                if (!this.active) return false;
+                
+                return player.x < this.x + this.width &&
+                       player.x + player.width > this.x &&
+                       player.y < this.y + this.height &&
+                       player.y + player.height > this.y;
+            }
+        }
+
+        // Falling Block Trap - Block falls from above
+        class FallingBlockTrap extends Trap {
+            constructor(x, y) {
+                super(x, y, 'falling block');
+                this.width = 60;
+                this.height = 30;
+                this.falling = false;
+                this.fallSpeed = 8;
+                this.originalY = y;
+                this.shadowY = y + 100; // Where shadow appears
+                this.shadowVisible = false;
+            }
+            
+            update() {
+                const player = gameState.player;
+                
+                // Check if player is under the trap
+                if (!this.triggered && 
+                    player.x + player.width > this.x && 
+                    player.x < this.x + this.width &&
+                    player.y > this.shadowY) {
+                    
+                    this.triggered = true;
+                    this.shadowVisible = true;
+                    this.showWarning();
+                    setTimeout(() => {
+                        this.shadowVisible = false;
+                        this.activate();
+                    }, this.warningTime);
+                }
+                
+                // Handle falling
+                if (this.active && !this.falling) {
+                    this.falling = true;
+                }
+                
+                if (this.falling) {
+                    this.y += this.fallSpeed;
+                    
+                    // Reset if fell off screen
+                    if (this.y > canvas.height) {
+                        this.reset();
+                    }
+                }
+            }
+            
+            draw() {
+                // Draw shadow if warning is active
+                if (this.shadowVisible) {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                    ctx.fillRect(this.x, this.shadowY, this.width, 10);
+                }
+                
+                // Draw falling block
+                ctx.fillStyle = this.active ? '#ff416c' : '#9b59b6';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Draw block pattern
+                ctx.fillStyle = '#8e44ad';
+                ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, this.height - 10);
+                
+                // Draw warning indicator
+                if (this.showingWarning) {
+                    ctx.strokeStyle = '#ff9a76';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
+                    ctx.setLineDash([]);
+                }
+            }
+            
+            checkCollision(player) {
+                if (!this.active) return false;
+                
+                return player.x < this.x + this.width &&
+                       player.x + player.width > this.x &&
+                       player.y < this.y + this.height &&
+                       player.y + player.height > this.y;
+            }
+            
+            reset() {
+                this.y = this.originalY;
+                this.falling = false;
+                this.active = false;
+                this.triggered = false;
+                this.shadowVisible = false;
+                this.showingWarning = false;
+            }
+        }
+
+        // Teleporter Trap - Teleports player to dangerous location
+        class TeleporterTrap extends Trap {
+            constructor(x, y) {
+                super(x, y, 'teleporter');
+                this.width = 40;
+                this.height = 40;
+                this.teleportDestination = {x: 0, y: 0};
+                this.activated = false;
+                this.cooldownTime = 3000;
+                this.lastActivation = 0;
+            }
+            
+            update() {
+                // Set random teleport destination
+                if (this.teleportDestination.x === 0) {
+                    this.teleportDestination.x = 100 + Math.random() * (canvas.width - 200);
+                    this.teleportDestination.y = 100 + Math.random() * (canvas.height - 200);
+                }
+                
+                // Cooldown management
+                if (this.activated && Date.now() - this.lastActivation > this.cooldownTime) {
+                    this.activated = false;
+                }
+            }
+            
+            draw() {
+                // Draw teleporter pad
+                ctx.fillStyle = this.activated ? '#3498db' : '#2980b9';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Draw teleporter pattern
+                ctx.strokeStyle = '#1abc9c';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2, this.y + this.height/2, 15, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Draw teleporter lines
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    const x1 = this.x + this.width/2 + Math.cos(angle) * 10;
+                    const y1 = this.y + this.height/2 + Math.sin(angle) * 10;
+                    const x2 = this.x + this.width/2 + Math.cos(angle) * 20;
+                    const y2 = this.y + this.height/2 + Math.sin(angle) * 20;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+                
+                // Draw warning
+                if (this.showingWarning) {
+                    ctx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                    ctx.fillRect(this.x - 10, this.y - 10, this.width + 20, this.height + 20);
+                }
+            }
+            
+            checkCollision(player) {
+                if (this.activated) return false;
+                
+                const collided = player.x < this.x + this.width &&
+                                 player.x + player.width > this.x &&
+                                 player.y < this.y + this.height &&
+                                 player.y + player.height > this.y;
+                
+                if (collided && !this.activated) {
+                    this.activateTrap(player);
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            activateTrap(player) {
+                this.activated = true;
+                this.lastActivation = Date.now();
+                this.addToLog("Teleported to dangerous location!");
+                
+                // Teleport player
+                player.x = this.teleportDestination.x;
+                player.y = this.teleportDestination.y;
+                
+                // Add velocity to make it dangerous
+                player.velocityY = -5;
+                
+                // 50% chance to teleport to spike field
+                if (Math.random() > 0.5) {
+                    // Create temporary spikes at destination
+                    setTimeout(() => {
+                        for (let i = 0; i < 3; i++) {
+                            const spikeX = this.teleportDestination.x - 40 + i * 40;
+                            const spikeY = this.teleportDestination.y + 50;
+                            gameState.spikes.push(new Spike(spikeX, spikeY, 40, 20));
+                            
+                            // Remove spikes after 3 seconds
+                            setTimeout(() => {
+                                const index = gameState.spikes.findIndex(s => 
+                                    s.x === spikeX && s.y === spikeY);
+                                if (index > -1) gameState.spikes.splice(index, 1);
+                            }, 3000);
+                        }
+                    }, 500);
+                }
+            }
+        }
+
+        // Platform class (unchanged from previous version)
+        class Platform {
+            constructor(x, y, width, height, color = '#2d4059') {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.color = color;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Platform top highlight
+                ctx.fillStyle = '#3a506b';
+                ctx.fillRect(this.x, this.y, this.width, 3);
+            }
+        }
+
+        // Spike class (unchanged)
+        class Spike {
+            constructor(x, y, width, height, direction = 'up') {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.direction = direction;
+            }
+
+            draw() {
+                ctx.fillStyle = '#ff416c';
+                
+                if (this.direction === 'up') {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + this.width/2, this.y);
+                    ctx.lineTo(this.x, this.y + this.height);
+                    ctx.lineTo(this.x + this.width, this.y + this.height);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (this.direction === 'down') {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + this.width/2, this.y + this.height);
+                    ctx.lineTo(this.x, this.y);
+                    ctx.lineTo(this.x + this.width, this.y);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Flag class (unchanged)
+        class Flag {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 30;
+                this.height = 50;
+                this.poleHeight = 40;
+            }
+
+            draw() {
+                // Flag pole
+                ctx.fillStyle = '#ccc';
+                ctx.fillRect(this.x, this.y, 5, this.poleHeight);
+                
+                // Flag
+                ctx.fillStyle = '#7fdbda';
+                ctx.beginPath();
+                ctx.moveTo(this.x + 5, this.y);
+                ctx.lineTo(this.x + 25, this.y + 10);
+                ctx.lineTo(this.x + 5, this.y + 20);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        // Initialize game
+        function initGame() {
+            gameState.player = new Player(50, canvas.height - 150);
+            gameState.platforms = [];
+            gameState.spikes = [];
+            gameState.traps = [];
+            gameState.levelComplete = false;
+            gameState.gameOver = false;
+            gameState.spikeImmunityUsed = false;
+            
+            // Create level based on current level
+            createLevel(gameState.level);
+            
+            // Update UI
+            updateUI();
+            
+            // Hide death screen
+            document.getElementById('deathScreen').style.display = 'none';
+        }
+
+        // Create levels with traps
+        function createLevel(level) {
+            // Reset arrays
+            gameState.platforms = [];
+            gameState.spikes = [];
+            gameState.traps = [];
+            
+            // Ground platform
+            gameState.platforms.push(new Platform(0, canvas.height - 40, canvas.width, 40, '#1c2d3f'));
+            
+            // Level-specific platforms and traps
+            if (level === 1) {
+                // Level 1: Basic introduction with one simple trap
+                gameState.platforms.push(new Platform(150, canvas.height - 120, 200, 20));
+                gameState.platforms.push(new Platform(400, canvas.height - 200, 150, 20));
+                gameState.platforms.push(new Platform(600, canvas.height - 280, 150, 20));
+                
+                // Add a simple spike trap
+                gameState.traps.push(new SpikeTrap(300, canvas.height - 220));
+                
+                gameState.flag = new Flag(700, canvas.height - 330);
+                document.getElementById('levelName').textContent = 'Trap Introduction';
+                
+            } else if (level === 2) {
+                // Level 2: Multiple trap types
+                gameState.platforms.push(new Platform(100, canvas.height - 120, 150, 20));
+                gameState.platforms.push(new Platform(300, canvas.height - 200, 150, 20));
+                gameState.platforms.push(new Platform(500, canvas.height - 280, 150, 20));
+                
+                // Add different traps
+                gameState.traps.push(new SpikeTrap(280, canvas.height - 220, 'up'));
+                gameState.traps.push(new CrushingWallTrap(450, canvas.height - 300, 'right'));
+                
+                gameState.flag = new Flag(650, canvas.height - 330);
+                document.getElementById('levelName').textContent = 'Trap Variety';
+                
+            } else if (level === 3) {
+                // Level 3: Timing-based traps
+                gameState.platforms.push(new Platform(100, canvas.height - 120, 150, 20));
+                gameState.platforms.push(new Platform(300, canvas.height - 200, 150, 20));
+                gameState.platforms.push(new Platform(500, canvas.height - 280, 150, 20));
+                
+                // Add falling block trap
+                gameState.traps.push(new FallingBlockTrap(400, 50));
+                gameState.traps.push(new SpikeTrap(200, canvas.height - 140, 'up'));
+                
+                gameState.flag = new Flag(650, canvas.height - 330);
+                document.getElementById('levelName').textContent = 'Timing Challenges';
+                
+            } else if (level === 4) {
+                // Level 4: Teleporter trap
+                gameState.platforms.push(new Platform(100, canvas.height - 120, 80, 20));
+                gameState.platforms.push(new Platform(220, canvas.height - 200, 80, 20));
+                gameState.platforms.push(new Platform(340, canvas.height - 280, 80, 20));
+                
+                // Add teleporter trap
+                gameState.traps.push(new TeleporterTrap(400, canvas.height - 320));
+                
+                gameState.platforms.push(new Platform(460, canvas.height - 200, 80, 20));
+                gameState.platforms.push(new Platform(580, canvas.height - 120, 80, 20));
+                
+                gameState.flag = new Flag(650, canvas.height - 170);
+                document.getElementById('levelName').textContent = 'Spatial Surprises';
+                
+            } else {
+                // Procedural levels with increasing trap complexity
+                createProceduralLevel(level);
+                document.getElementById('levelName').textContent = `Level ${level} - Trap Gauntlet`;
+            }
+            
+            // Update difficulty indicator
+            updateDifficultyIndicator(level);
+        }
+
+        // Create procedural levels with traps
+        function createProceduralLevel(level) {
+            let platformY = canvas.height - 120;
+            let platformX = 100;
+            
+            // Create platforms
+            const platformCount = 5 + Math.min(level - 5, 5);
+            
+            for (let i = 0; i < platformCount; i++) {
+                const width = 80 + Math.random() * 120;
+                const height = 20;
+                
+                gameState.platforms.push(new Platform(platformX, platformY, width, height));
+                
+                // Add traps with increasing probability and variety
+                const trapChance = 0.4 + (level * 0.02);
+                if (Math.random() < trapChance) {
+                    const trapTypes = [SpikeTrap, CrushingWallTrap, FallingBlockTrap, TeleporterTrap];
+                    const TrapType = trapTypes[Math.floor(Math.random() * trapTypes.length)];
+                    
+                    if (TrapType === SpikeTrap) {
+                        gameState.traps.push(new TrapType(
+                            platformX + width/2 - 20, 
+                            platformY - 20,
+                            Math.random() > 0.5 ? 'up' : 'down'
+                        ));
+                    } else if (TrapType === CrushingWallTrap) {
+                        gameState.traps.push(new TrapType(
+                            platformX - 30,
+                            platformY - 80,
+                            Math.random() > 0.5 ? 'right' : 'left'
+                        ));
+                    } else if (TrapType === FallingBlockTrap) {
+                        gameState.traps.push(new TrapType(
+                            platformX + width/2 - 30,
+                            platformY - 150
+                        ));
+                    } else if (TrapType === TeleporterTrap) {
+                        gameState.traps.push(new TrapType(
+                            platformX + width/2 - 20,
+                            platformY - 40
+                        ));
+                    }
+                }
+                
+                // Update for next platform
+                platformY -= 50 + Math.random() * 50;
+                platformX += 100 + Math.random() * 120;
+                
+                // Ensure platforms stay in bounds
+                if (platformX + width > canvas.width - 100) {
+                    platformX = 100;
+                }
+            }
+            
+            // Place flag at the last platform
+            gameState.flag = new Flag(platformX + 50, platformY - 50);
+            
+            // Increase difficulty
+            gameState.difficulty = Math.min(5, Math.floor(level / 3) + 1);
+        }
+
+        // Update difficulty indicator
+        function updateDifficultyIndicator(level) {
+            const dots = document.querySelectorAll('.difficulty-dot');
+            const difficulty = Math.min(5, Math.floor(level / 3) + 1);
+            
+            dots.forEach((dot, index) => {
+                if (index < difficulty) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        // Check collisions including traps
+        function checkCollisions() {
+            const player = gameState.player;
+            
+            // Platform collisions
+            player.grounded = false;
+            for (const platform of gameState.platforms) {
+                if (player.velocityY > 0 &&
+                    player.x < platform.x + platform.width &&
+                    player.x + player.width > platform.x &&
+                    player.y < platform.y + platform.height &&
+                    player.y + player.height > platform.y) {
+                    
+                    player.y = platform.y - player.height;
+                    player.velocityY = 0;
+                    player.grounded = true;
+                    player.jumps = 0;
+                }
+            }
+            
+            // Spike collisions
+            for (const spike of gameState.spikes) {
+                if (player.x < spike.x + spike.width &&
+                    player.x + player.width > spike.x &&
+                    player.y < spike.y + spike.height &&
+                    player.y + player.height > spike.y) {
+                    
+                    if (gameState.spikeImmunityUnlocked && !gameState.spikeImmunityUsed) {
+                        // Use spike immunity
+                        gameState.spikeImmunityUsed = true;
+                        gameState.trapLog.push("Spike immunity used!");
+                        updateTrapLog();
+                        // Bounce player away
+                        player.velocityY = -10;
+                        player.velocityX = player.velocityX > 0 ? -5 : 5;
+                    } else {
+                        playerDie("Spiked");
+                    }
+                    return;
+                }
+            }
+            
+            // Trap collisions
+            for (const trap of gameState.traps) {
+                trap.update();
+                
+                if (trap.checkCollision(player)) {
+                    if (trap.type === 'teleporter') {
+                        // Teleporter doesn't kill immediately
+                        gameState.trapsDodged++;
+                    } else {
+                        playerDie(trap.type + " trap");
+                    }
+                    return;
+                }
+            }
+            
+            // Flag collision (level complete)
+            if (gameState.flag &&
+                player.x < gameState.flag.x + gameState.flag.width &&
+                player.x + player.width > gameState.flag.x &&
+                player.y < gameState.flag.y + gameState.flag.height &&
+                player.y + player.height > gameState.flag.y) {
+                
+                levelComplete();
+            }
+        }
+
+        // Show trap warning
+        function showTrapWarning(message) {
+            const warning = document.getElementById('trapWarning');
+            warning.textContent = message;
+            warning.style.display = 'block';
+            
+            setTimeout(() => {
+                warning.style.display = 'none';
+            }, 2000);
+        }
+
+        // Update trap log
+        function updateTrapLog() {
+            const logContent = document.getElementById('trapLogContent');
+            logContent.innerHTML = '';
+            
+            // Show only last 5 entries
+            const recentLogs = gameState.trapLog.slice(-5);
+            
+            recentLogs.forEach((log, index) => {
+                const logItem = document.createElement('div');
+                logItem.className = `trap-log-item ${index === recentLogs.length - 1 ? 'new' : ''}`;
+                logItem.textContent = log;
+                logContent.appendChild(logItem);
+            });
+            
+            // Auto-scroll to bottom
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        // Player death with trap type
+        function playerDie(cause = "Unknown") {
+            gameState.deaths++;
+            gameState.gameOver = true;
+            
+            // Record death location for adaptive traps
+            gameState.playerBehavior.deathLocations.push({
+                x: gameState.player.x,
+                y: gameState.player.y,
+                level: gameState.level
+            });
+            
+            // Keep only last 10 death locations
+            if (gameState.playerBehavior.deathLocations.length > 10) {
+                gameState.playerBehavior.deathLocations.shift();
+            }
+            
+            // Show death screen
+            document.getElementById('deathScreen').style.display = 'flex';
+            document.getElementById('deathLevel').textContent = gameState.level;
+            document.getElementById('deathCount').textContent = gameState.deaths;
+            document.getElementById('deathTime').textContent = Math.floor((gameState.currentTime - gameState.startTime) / 1000);
+            document.getElementById('trapType').textContent = cause;
+            
+            // Random death messages based on cause
+            const deathMessages = {
+                "Spiked": ["Impaled! Those spikes are sharp.", "Spike salad isn't tasty."],
+                "spike trap": ["A spike trap got you!", "Watch for hidden spikes!"],
+                "crushing wall trap": ["Crushed by a wall!", "That wall had a grudge."],
+                "falling block trap": ["Squashed by a falling block!", "Watch the skies!"],
+                "teleporter trap": ["Teleported to your doom!", "Wrong destination!"],
+                "Fell into the void": ["The abyss calls...", "Gravity wins again."]
+            };
+            
+            const messages = deathMessages[cause] || [
+                "The devil has claimed another soul. Try again!",
+                "That looked painful. Give it another shot!",
+                "Your soul has been collected. Don't give up!"
+            ];
+            
+            document.getElementById('deathMessage').textContent = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Update UI
+            updateUI();
+        }
+
+        // Level complete
+        function levelComplete() {
+            gameState.levelComplete = true;
+            
+            // Award souls based on level and traps dodged
+            const soulsEarned = 10 + gameState.level * 2 + gameState.trapsDodged;
+            gameState.souls += soulsEarned;
+            
+            // Add trap log entry
+            gameState.trapLog.push(`Level ${gameState.level} complete! +${soulsEarned} souls`);
+            updateTrapLog();
+            
+            // Progress to next level after a delay
+            setTimeout(() => {
+                gameState.level++;
+                gameState.trapsDodged = 0; // Reset for next level
+                initGame();
+                gameState.levelComplete = false;
+                
+                // Update progress bar
+                updateProgressBar();
+            }, 1000);
+            
+            updateUI();
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('levelDisplay').textContent = gameState.level;
+            document.getElementById('deathsDisplay').textContent = gameState.deaths;
+            document.getElementById('soulsDisplay').textContent = gameState.souls;
+            document.getElementById('trapsDodgedDisplay').textContent = gameState.trapsDodged;
+            
+            // Update time
+            if (gameState.running && !gameState.gameOver) {
+                const elapsed = Math.floor((gameState.currentTime - gameState.startTime) / 1000);
+                document.getElementById('timeDisplay').textContent = `${elapsed}s`;
+            }
+            
+            // Update upgrade buttons
+            document.getElementById('upgradeTrapSense').disabled = gameState.trapSenseUnlocked || gameState.souls < 25;
+            document.getElementById('upgradeSpikeImmunity').disabled = gameState.spikeImmunityUnlocked || gameState.souls < 40;
+            
+            // Update continue button
+            document.getElementById('continueButton').disabled = gameState.souls < 10;
+            
+            // Update progress bar
+            updateProgressBar();
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const progress = (gameState.level % 5) * 20;
+            document.getElementById('levelProgressBar').style.width = `${progress}%`;
+        }
+
+        // Game loop
+        function gameLoop(timestamp) {
+            if (!gameState.startTime) gameState.startTime = timestamp;
+            gameState.currentTime = timestamp;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            ctx.fillStyle = '#0f3460';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw stars
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 23) % canvas.width;
+                const y = (i * 17) % canvas.height;
+                const size = (i % 3) + 1;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.fillRect(x, y, size, size);
+            }
+            
+            // Update and draw platforms
+            gameState.platforms.forEach(platform => {
+                platform.draw();
+            });
+            
+            // Update and draw spikes
+            gameState.spikes.forEach(spike => {
+                spike.draw();
+            });
+            
+            // Update and draw traps
+            gameState.traps.forEach(trap => {
+                trap.draw();
+            });
+            
+            // Draw flag
+            if (gameState.flag) {
+                gameState.flag.draw();
+            }
+            
+            // Update and draw player if game is running
+            if (gameState.running && !gameState.gameOver) {
+                gameState.player.update();
+                checkCollisions();
+                gameState.player.draw();
+                
+                // Draw UI elements on canvas
+                ctx.fillStyle = '#7fdbda';
+                ctx.font = '20px Arial';
+                ctx.fillText(`Souls: ${gameState.souls}`, 20, 40);
+                ctx.fillText(`Level: ${gameState.level}`, 20, 70);
+                ctx.fillText(`Traps: ${gameState.traps.length}`, 20, 100);
+            }
+            
+            // Update UI
+            updateUI();
+            
+            // Continue game loop
+            if (gameState.running) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('keydown', (e) => {
+            if (!gameState.running) return;
+            
+            if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+                gameState.player.move(-1);
+            } else if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+                gameState.player.move(1);
+            } else if (e.key === ' ' || e.key === 'Spacebar') {
+                gameState.player.jump();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (!gameState.running) return;
+            
+            if ((e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') && gameState.player.velocityX < 0) {
+                gameState.player.move(0);
+            } else if ((e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') && gameState.player.velocityX > 0) {
+                gameState.player.move(0);
+            }
+        });
+
+        // Mobile controls
+        document.querySelector('.mobile-btn.left').addEventListener('touchstart', () => {
+            if (gameState.running) gameState.player.move(-1);
+        });
+        document.querySelector('.mobile-btn.left').addEventListener('touchend', () => {
+            if (gameState.running && gameState.player.velocityX < 0) gameState.player.move(0);
+        });
+        
+        document.querySelector('.mobile-btn.right').addEventListener('touchstart', () => {
+            if (gameState.running) gameState.player.move(1);
+        });
+        document.querySelector('.mobile-btn.right').addEventListener('touchend', () => {
+            if (gameState.running && gameState.player.velocityX > 0) gameState.player.move(0);
+        });
+        
+        document.querySelector('.mobile-btn.jump').addEventListener('touchstart', () => {
+            if (gameState.running) gameState.player.jump();
+        });
+
+        // Button event listeners
+        document.getElementById('startButton').addEventListener('click', () => {
+            if (!gameState.running) {
+                gameState.running = true;
+                gameState.startTime = performance.now();
+                document.getElementById('startButton').disabled = true;
+                requestAnimationFrame(gameLoop);
+            }
+        });
+
+        document.getElementById('resetButton').addEventListener('click', () => {
+            gameState = {
+                running: false,
+                level: 1,
+                deaths: 0,
+                souls: 0,
+                trapsDodged: 0,
+                startTime: 0,
+                currentTime: 0,
+                player: null,
+                platforms: [],
+                spikes: [],
+                traps: [],
+                flag: null,
+                levelComplete: false,
+                gameOver: false,
+                trapSenseUnlocked: false,
+                spikeImmunityUnlocked: false,
+                spikeImmunityUsed: false,
+                difficulty: 1,
+                playerBehavior: {
+                    avgSpeed: 0,
+                    jumpCount: 0,
+                    deathLocations: [],
+                    commonPaths: []
+                },
+                trapLog: ["Game reset. Watch for traps!"]
+            };
+            
+            initGame();
+            updateTrapLog();
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('deathScreen').style.display = 'none';
+        });
+
+        document.getElementById('restartButton').addEventListener('click', () => {
+            initGame();
+            gameState.running = true;
+            gameState.startTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        });
+
+        document.getElementById('continueButton').addEventListener('click', () => {
+            if (gameState.souls >= 10) {
+                gameState.souls -= 10;
+                gameState.gameOver = false;
+                initGame();
+                gameState.running = true;
+                gameState.startTime = performance.now();
+                document.getElementById('deathScreen').style.display = 'none';
+                requestAnimationFrame(gameLoop);
+            }
+        });
+
+        // Upgrade event listeners
+        document.getElementById('upgradeTrapSense').addEventListener('click', () => {
+            if (gameState.souls >= 25 && !gameState.trapSenseUnlocked) {
+                gameState.souls -= 25;
+                gameState.trapSenseUnlocked = true;
+                document.getElementById('upgradeTrapSense').disabled = true;
+                gameState.trapLog.push("Trap Sense unlocked! See warnings earlier.");
+                updateTrapLog();
+                updateUI();
+            }
+        });
+
+        document.getElementById('upgradeSpikeImmunity').addEventListener('click', () => {
+            if (gameState.souls >= 40 && !gameState.spikeImmunityUnlocked) {
+                gameState.souls -= 40;
+                gameState.spikeImmunityUnlocked = true;
+                document.getElementById('upgradeSpikeImmunity').disabled = true;
+                gameState.trapLog.push("Spike Immunity unlocked! Survive one spike hit per level.");
+                updateTrapLog();
+                updateUI();
+            }
+        });
+
+        // Initialize the game
+        initGame();
+        updateTrapLog();
+        
+        // Draw initial state
+        gameLoop(0);
+    </script>
+</body>
+</html>
